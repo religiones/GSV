@@ -1,0 +1,11 @@
+/*Note: This file should not be @import in other .less, The variables in this file are not used to set the theme of the project (of course, you can use it as the default theme during loading). The main function is that as long as the variable value here is different from the original variable value of the project, CSS that changes with the theme color gradient will be extracted after compilation*/
+
+/*Important: Once the content of this file is fixed, it does not need to be changed. You can dynamically switch topics online use setCustomTheme method*/
+
+/*Emphasis: the change of variable value will affect the changes of gradientReplacer and targetValueReplacer available attributes of setCustomTheme method, so once the content is fixed, it does not need to be changed.*/
+
+/*A theme color, same as defaultPrimaryColor of themePreprocessorPlugin, inline switch use setCustomTheme({primaryColor})*/
+@primary-color: #dedede;
+/*The style corresponding to this color will also change with the main color by default, inline switch  can use setCustomTheme({gradientReplacer:{"#F7D06B"}}) */
+@alert-success-bg-color: #F7D06B;
+@border-radius-base: 6px;
