@@ -8,3 +8,5 @@ const Axios = (axiosConfig: AxiosRequestConfig<any>)=>{
     })
     return service(axiosConfig)
 }
+
+export default Axios;

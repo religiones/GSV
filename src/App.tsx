@@ -3,8 +3,11 @@ import { Layout, Model, TabNode, IJsonModel } from 'flexlayout-react';
 // import 'flexlayout-react/style/light.css';
 // import 'flexlayout-react/style/dark.css';
 import 'flexlayout-react/style/underline.css';
+import { useEffect } from 'react';
+import { connectTest } from './api/graph';
 import './App.less';
 import Box from './components/box';
+
 function App() {
   const config: IJsonModel = {
     global: { tabEnableFloat: false },
@@ -21,7 +24,8 @@ function App() {
             children:[
               {
                 type:'tab',
-                name:"Control Panel"
+                name:"control panel",
+                component:"control-panel"
               }
             ]
           },{
@@ -29,7 +33,8 @@ function App() {
             children:[
               {
                 type:'tab',
-                name:"graph view"
+                name:"graph view",
+                component:"graph-view"
               }
             ]
           }]
@@ -37,15 +42,30 @@ function App() {
           type: 'row',
           weight: 80,
           children:[{
-            type: 'tabset',
+            type: 'row',
             weight: 60,
             children:[
               {
-                type: 'tab',
-                name: "graph list"
-              },{
-                type: 'tab',
-                name: "graph gallery"
+                type: 'tabset',
+                weight: 80,
+                children:[
+                  {
+                    type: 'tab',
+                    name: "community list",
+                    component:"community-list"
+                  }
+                ]
+              },
+              {
+                type: 'tabset',
+                weight: 20,
+                children:[
+                  {
+                    type: 'tab',
+                    name: "graph embedding",
+                    component:"graph-embedding"
+                  }
+                ]
               }
             ]
           },
@@ -55,7 +75,8 @@ function App() {
             children:[
               {
                 type: 'tab',
-                name: "graph infomation"
+                name: "graph infomation",
+                component:"graph-infomation"
               }
             ]
           }
@@ -67,10 +88,16 @@ function App() {
   const model = Model.fromJson(config);
   const factory = (node: TabNode) => {
     var component = node.getComponent();
-    if(component === "box"){
+    if(component === "graph-infomation"){
       return <Box/>
     }
   };
+
+  useEffect(()=>{
+    connectTest().then((res)=>{
+      console.log(res.data);
+    });
+  },[])
 
   return (
     <div className='App'>
