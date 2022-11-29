@@ -10,7 +10,9 @@ import CommunityList from './components/community-list';
 import ControlPanel from './components/control-panel';
 import GraphEmbedding from './components/graph-embedding';
 import GraphInformation from './components/graph-information';
+import GraphNeighbor from './components/graph-neighbor';
 import GraphView from './components/graph-view';
+
 
 function App() {
   const config: IJsonModel = {
@@ -39,6 +41,10 @@ function App() {
                 type:'tab',
                 name:"graph view",
                 component:"graph-view"
+              },{
+                type:'tab',
+                name:"graph neighbor",
+                component:"graph-neighbor"
               }
             ]
           }]
@@ -103,6 +109,10 @@ function App() {
         return <GraphInformation/>;
       case "graph-embedding":
         return <GraphEmbedding/>;
+      case "graph-neighbor":
+        return <GraphNeighbor/>;
+      default:
+        return <></>
     }
   };
 
