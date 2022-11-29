@@ -6,7 +6,11 @@ import 'flexlayout-react/style/underline.css';
 import { useEffect } from 'react';
 import { connectTest } from './api/graph';
 import './App.less';
-import Box from './components/box';
+import CommunityList from './components/community-list';
+import ControlPanel from './components/control-panel';
+import GraphEmbedding from './components/graph-embedding';
+import GraphInformation from './components/graph-information';
+import GraphView from './components/graph-view';
 
 function App() {
   const config: IJsonModel = {
@@ -75,8 +79,8 @@ function App() {
             children:[
               {
                 type: 'tab',
-                name: "graph infomation",
-                component:"graph-infomation"
+                name: "graph information",
+                component:"graph-information"
               }
             ]
           }
@@ -88,8 +92,17 @@ function App() {
   const model = Model.fromJson(config);
   const factory = (node: TabNode) => {
     var component = node.getComponent();
-    if(component === "graph-infomation"){
-      return <Box/>
+    switch(component){
+      case "control-panel":
+        return <ControlPanel/>;
+      case "graph-view":
+        return <GraphView/>;
+      case "community-list":
+        return <CommunityList/>;
+      case "graph-information":
+        return <GraphInformation/>;
+      case "graph-embedding":
+        return <GraphEmbedding/>;
     }
   };
 
