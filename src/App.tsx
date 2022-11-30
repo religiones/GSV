@@ -4,6 +4,7 @@ import { Layout, Model, TabNode, IJsonModel } from 'flexlayout-react';
 // import 'flexlayout-react/style/dark.css';
 import 'flexlayout-react/style/underline.css';
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { connectTest } from './api/graph';
 import './App.less';
 import CommunityList from './components/community-list';
@@ -36,12 +37,7 @@ function App() {
             ]
           },{
             type:'tabset',
-            children:[
-              {
-                type:'tab',
-                name:"graph view",
-                component:"graph-view"
-              },{
+            children:[{
                 type:'tab',
                 name:"graph neighbor",
                 component:"graph-neighbor"
@@ -63,6 +59,11 @@ function App() {
                     type: 'tab',
                     name: "community list",
                     component:"community-list"
+                  },
+                  {
+                    type:'tab',
+                    name:"graph view",
+                    component:"graph-view"
                   }
                 ]
               },

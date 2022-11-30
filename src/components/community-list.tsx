@@ -3,17 +3,25 @@ import { getCommunity } from '../api/community';
 import * as LineUpJs from 'lineupjs';
 import "./style/community.less";
 import taggle from 'lineupjs/build/src/ui/taggle';
-import {  buildNumberColumn, buildStringColumn } from 'lineupjs';
+import { buildNumberColumn, buildStringColumn } from 'lineupjs';
+import { useDispatch } from 'react-redux';
+import { setCommunity } from '../store/features/community-list-slice';
 
 const CommunityList: React.FC<{}> = () => {
     let lineUp: taggle|null = null;
     const container: LegacyRef<HTMLDivElement>|null = useRef(null);
     const listStringWidth: number = 80;
     const listNumWidth: number = 110;
-    const listCategoricalWidth: number = 80;
+    const listCategoricalWidth: number = 78;
+    const dispatch = useDispatch();
+
     useEffect(()=>{
+        initCommunityList();
+    },[]);
+
+    const initCommunityList = () => {
         getCommunity().then(res=>{
-            const data: any[] = res.data.data;
+            const data: any[] = res.data;
             data.sort((a: any, b:any)=>{
                 return (b["node_num"]-a["node_num"]);
             });
@@ -33,17 +41,29 @@ const CommunityList: React.FC<{}> = () => {
                 .column(buildNumberColumn('other').width(listCategoricalWidth))
                 .deriveColors()
                 .buildTaggle(container.current as HTMLElement);
+
+                // add event listener
+                lineUp.on('selectionChanged', (idArray: number[]) => {
+                    if(idArray.length == 1){
+                        // select one community
+                        const listId = idArray[0];
+                        const communityId = data[listId]["id"].toString();
+                        dispatch(setCommunity({currentCommunity: communityId}))
+                    }else{
+                        // select multiple
+                    }
+                    
+                });
             }else{
                 console.log("no listDom");
             }
-        })      
-    },[])
-
-
+        });
+    }
 
     return (
         <div ref={container} style={{width:'100%', height:'100%'}}>
-       </div>);
+       </div>
+        );
 };
 
 export default CommunityList
