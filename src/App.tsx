@@ -38,6 +38,10 @@ function App() {
           },{
             type:'tabset',
             children:[{
+              type:'tab',
+              name:"graph view",
+              component:"graph-view"
+            },{
                 type:'tab',
                 name:"graph neighbor",
                 component:"graph-neighbor"
@@ -59,11 +63,6 @@ function App() {
                     type: 'tab',
                     name: "community list",
                     component:"community-list"
-                  },
-                  {
-                    type:'tab',
-                    name:"graph view",
-                    component:"graph-view"
                   }
                 ]
               },
