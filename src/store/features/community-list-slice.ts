@@ -1,13 +1,15 @@
 // community-list store
 
 import { createSlice } from "@reduxjs/toolkit"
-
+import { Community } from "../../components/@types/communi-list";
 export interface CommunityListState {
-    currentCommunity: String
+    currentCommunityId: string
+    currentCommunity: Community|null
 }
 
 const initialState: CommunityListState = {
-    currentCommunity: '1983081'
+    currentCommunityId: '1983081',
+    currentCommunity: null
 }
 
 // create a slice
@@ -16,13 +18,16 @@ export const communityListSlice = createSlice({
     initialState,
     reducers: {
         // define reducers action
-        setCommunity: (state: CommunityListState, {payload}) => {
+        setCommunityId: (state: CommunityListState, {payload}) => {
+            state.currentCommunityId = payload.currentCommunityId;
+        },
+        setCommunity: (state:CommunityListState, {payload}) => {
             state.currentCommunity = payload.currentCommunity;
         }
     }
 });
 
 // export actions
-export const {setCommunity} = communityListSlice.actions;
+export const {setCommunityId, setCommunity} = communityListSlice.actions;
 
 export default communityListSlice.reducer;

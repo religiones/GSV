@@ -9,11 +9,11 @@ const GraphView: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
     '#D75D73','#E0592B', '#58B7B3', '#68bb8c','#3F3B6C','#CF0A0A'];
 
-    const {currentCommunity} = useSelector((store: any)=>store.communityList);
+    const {currentCommunityId} = useSelector((store: any)=>store.communityList);
     useEffect(()=>{
         // render graph
-        initGraph(currentCommunity);
-    },[currentCommunity]);
+        initGraph(currentCommunityId);
+    },[currentCommunityId]);
 
     const initGraph = (id: string) => {
         getGraphByCommunity({
