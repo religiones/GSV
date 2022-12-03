@@ -1,4 +1,4 @@
-import G6, { Graph, IG6GraphEvent, NodeConfig } from '@antv/g6';
+import G6, { Graph } from '@antv/g6';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getGraphByCommunity } from '../api/graph';
@@ -20,6 +20,8 @@ const GraphView: React.FC<{}> = () => {
             community: id
         }).then((res)=>{
             const data = res.data;
+            console.log(data);
+            
             // minimap plugins
             const minimap = new G6.Minimap({
                 size: [100, 100],

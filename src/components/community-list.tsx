@@ -5,7 +5,7 @@ import "./style/community.less";
 import taggle from 'lineupjs/build/src/ui/taggle';
 import { buildNumberColumn, buildStringColumn } from 'lineupjs';
 import { useDispatch } from 'react-redux';
-import { setCommunityId, setCommunity } from '../store/features/community-list-slice';
+import { setCommunityId, setCommunity, setCommunities } from '../store/features/community-list-slice';
 
 const CommunityList: React.FC<{}> = () => {
     let lineUp: taggle|null = null;
@@ -26,6 +26,7 @@ const CommunityList: React.FC<{}> = () => {
                 return (b["node_num"]-a["node_num"]);
             });
             console.log(data);
+            dispatch(setCommunities({communities: data}));
             if(container.current != null){
                 lineUp = LineUpJs.builder(data).column(buildStringColumn('id').width(listStringWidth))
                 .column(buildNumberColumn('node_num').width(listNumWidth))
@@ -50,7 +51,7 @@ const CommunityList: React.FC<{}> = () => {
                         const communityId = data[listId]["id"].toString();
                         const community = data[listId];
                         dispatch(setCommunityId({currentCommunityId: communityId}));
-                        dispatch(setCommunity({currentCommunity: community}))
+                        dispatch(setCommunity({currentCommunity: community}));
                     }else{
                         // select multiple
                     }

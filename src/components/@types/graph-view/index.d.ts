@@ -2,7 +2,7 @@
 
 export interface Node{
     id: string,
-    property: any,
+    property?: any,
 }
 
 export interface Edge{
