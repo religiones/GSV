@@ -21,7 +21,11 @@ const GraphNeighbor: React.FC<{}> = () => {
                 data.nodes?.push({
                     id: community.id.toString(),
                     label: community.id.toString(),
-                    node_num : community.node_num
+                    node_num : community.node_num,
+                    style: {
+                        fill: "#CFFDE1",
+                        stroke: '#10A19D'
+                    }
                 });
                 data.edges?.push({
                     source: id.toString(),
@@ -32,7 +36,11 @@ const GraphNeighbor: React.FC<{}> = () => {
                 data.nodes?.push({
                     id: community.id.toString(),
                     label: community.id.toString(),
-                    node_num: community.node_num
+                    node_num: community.node_num,
+                    style: {
+                        fill: "#68B984",
+                        stroke: '#10A19D'
+                    }
                 })
             }
         }
@@ -72,7 +80,8 @@ const GraphNeighbor: React.FC<{}> = () => {
                 },
                 layout: {
                     type: 'circular',
-                    workerEnabled: true
+                    workerEnabled: true, // 可选，开启 web-worker
+                    //gpuEnabled: true, // 可选，开启 GPU 并行计算，G6 4.0 支持
                 },
             });
             graph.data(data);

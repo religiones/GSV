@@ -25,7 +25,7 @@ function App() {
       children: [
         {
           type: 'row',
-          weight: 20,
+          weight: 25,
           children:[{
             type:'tabset',
             children:[
@@ -50,7 +50,7 @@ function App() {
           }]
         },{
           type: 'row',
-          weight: 80,
+          weight: 75,
           children:[{
             type: 'row',
             weight: 60,
