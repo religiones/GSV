@@ -1,7 +1,10 @@
 import { Col, InputNumber, Radio, Row, Button} from 'antd';
 import Select from 'antd/es/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Community } from './@types/communi-list';
 import { SettingData } from './@types/control-panel';
+import GraphItem from './common/graph-item';
 import "./style/control-panle.less";
 
 const ControlPanel: React.FC<{}> = () => {
@@ -16,6 +19,10 @@ const ControlPanel: React.FC<{}> = () => {
 
     const algorithmOption = [{label:"skip-gram", value:"skip-gram"},{label:"CBOW", value:"CBOW"}];
     const optimizeOption = [{label:"hierachical softmax", value:"hierachical softmax"},{label:"neigative sampling", value:"neigative sampling"}];
+    const { selectCommunities, currentCommunityId } = useSelector((store: any) => store.communityList);
+    
+    const [target, setTarget] = useState<Community|null>(null);
+
     return (
     <div style={{width:'100%', height:'100%', padding:"0.5vw", boxSizing:"border-box"}}>
         <div id="control">
@@ -50,11 +57,19 @@ const ControlPanel: React.FC<{}> = () => {
         </div>
         <div id='target-graph'>
             <p className='control-title'>Target Graph</p>
-            <div className='graph-list' style={{height:"60%"}}></div>
+            <div className='graph-list' style={{height:"60%", padding:'0.2rem'}}>
+                <GraphItem width={100} height={100} target={target} isTarget={true}/>
+            </div>
         </div>
         <div id='select-graph'>
             <p className='control-title'>Select Graph</p>
-            <div className='graph-list' style={{height:"80%"}}></div>
+            <div className='graph-list' style={{height:"80%", padding:'0.2rem', overflowY:"scroll"}}>
+                {
+                    selectCommunities.map((item: Community, id:number)=>{
+                        return <GraphItem key={id} width={100} height={40} graph={item} isTarget={false} setTarget={setTarget}/>
+                    })
+                }
+            </div>
         </div>
         <Button className='control-button'>Search Similarity Graph</Button>
     </div>);

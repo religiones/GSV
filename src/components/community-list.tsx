@@ -5,7 +5,8 @@ import "./style/community.less";
 import taggle from 'lineupjs/build/src/ui/taggle';
 import { buildNumberColumn, buildStringColumn } from 'lineupjs';
 import { useDispatch } from 'react-redux';
-import { setCommunityId, setCommunity, setCommunities } from '../store/features/community-list-slice';
+import { setCommunityId, setCommunity, setCommunities, setSelectCommunities } from '../store/features/community-list-slice';
+import { Community } from './@types/communi-list';
 
 const CommunityList: React.FC<{}> = () => {
     let lineUp: taggle|null = null;
@@ -45,17 +46,17 @@ const CommunityList: React.FC<{}> = () => {
 
                 // add event listener
                 lineUp.on('selectionChanged', (idArray: number[]) => {
-                    if(idArray.length == 1){
-                        // select one community
-                        const listId = idArray[0];
-                        const communityId = data[listId]["id"].toString();
-                        const community = data[listId];
-                        dispatch(setCommunityId({currentCommunityId: communityId}));
-                        dispatch(setCommunity({currentCommunity: community}));
-                    }else{
-                        // select multiple
-                    }
-                    
+                    //defalut choose the last element
+                    const listId = idArray[idArray.length - 1];
+                    const communityId = data[listId]["id"].toString();
+                    const community = data[listId];
+                    dispatch(setCommunityId({currentCommunityId: communityId}));
+                    dispatch(setCommunity({currentCommunity: community}));
+                    const selectCommunities:Community[] = [];
+                    idArray.forEach(id=>{
+                        selectCommunities.push(data[id]);
+                    });
+                    dispatch(setSelectCommunities({selectCommunities: selectCommunities}));
                 });
             }else{
                 console.log("no listDom");

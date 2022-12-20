@@ -14,3 +14,5 @@ export type graphData = {
     nodes: Node[],
     edges: EDge[]
 }
+
+export type SetState<T> = Dispatch<SetStateAction<T>>;

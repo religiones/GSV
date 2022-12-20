@@ -5,13 +5,15 @@ import { Community } from "../../components/@types/communi-list";
 export interface CommunityListState {
     currentCommunityId: string,
     currentCommunity: Community|null,
-    communities: Community[]|null
+    communities: Community[]|null,
+    selectCommunities: Community[]
 }
 
 const initialState: CommunityListState = {
     currentCommunityId: '1983081',
     currentCommunity: null,
-    communities: null
+    communities: null,
+    selectCommunities: []
 }
 
 // create a slice
@@ -28,11 +30,14 @@ export const communityListSlice = createSlice({
         },
         setCommunities: (state: CommunityListState, {payload}) => {
             state.communities = payload.communities;
+        },
+        setSelectCommunities: (state: CommunityListState, {payload}) => {
+            state.selectCommunities = payload.selectCommunities;
         }
     }
 });
 
 // export actions
-export const {setCommunityId, setCommunity, setCommunities} = communityListSlice.actions;
+export const {setCommunityId, setCommunity, setCommunities, setSelectCommunities} = communityListSlice.actions;
 
 export default communityListSlice.reducer;
