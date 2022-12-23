@@ -58,7 +58,7 @@ const ControlPanel: React.FC<{}> = () => {
         <div id='target-graph'>
             <p className='control-title'>Target Graph</p>
             <div className='graph-list' style={{height:"60%", padding:'0.2rem'}}>
-                <GraphItem width={100} height={100} target={target} isTarget={true}/>
+                {target===null?<></>:<GraphItem width={100} height={100} target={target} isTarget={true}/>}
             </div>
         </div>
         <div id='select-graph'>
