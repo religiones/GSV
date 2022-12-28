@@ -38,6 +38,7 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
 
     const initNodeNum = () => {
         const svg = d3.select(nodeNumRef?.current);
+        svg.selectChildren().remove();
         if(initGraph != undefined){
             const data: number|undefined = initGraph.node_num;
             const min = 0, max = 3000;
@@ -64,6 +65,7 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
     const initGraphInfo = () => {
         const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223','#D75D73','#E0592B', '#58B7B3'];
         const svg = d3.select(graphInfoRef?.current);
+        svg.selectChildren().remove();
         if(initGraph != undefined){
             const data = initGraph.wrong_list;
             const sum = d3.sum(data);
@@ -88,6 +90,13 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
                 }).attr('fill',(d: any)=>{
                     return colorArray[scaleBand(d.name) as number];
                 });
+            }else{
+                svg.append('rect')
+                .attr('width','100%')
+                .attr('height', '60%')
+                .attr('y','20%')
+                .attr('x', 0)
+                .attr('fill','#fff')
             }
         }
     }
