@@ -2,10 +2,12 @@ import { Col, InputNumber, Radio, Row, Button} from 'antd';
 import Select from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { getSimilarityGraph } from '../api/control';
 import { Community } from './@types/communi-list';
 import { SettingData } from './@types/control-panel';
 import GraphItem from './common/graph-item';
 import "./style/control-panle.less";
+import * as d3 from 'd3';
 
 const ControlPanel: React.FC<{}> = () => {
     const [settingData, setSettingData] = useState<SettingData|undefined>({
@@ -20,8 +22,25 @@ const ControlPanel: React.FC<{}> = () => {
     const algorithmOption = [{label:"skip-gram", value:"skip-gram"},{label:"CBOW", value:"CBOW"}];
     const optimizeOption = [{label:"hierachical softmax", value:"hierachical softmax"},{label:"neigative sampling", value:"neigative sampling"}];
     const { selectCommunities, currentCommunityId } = useSelector((store: any) => store.communityList);
-    
     const [target, setTarget] = useState<Community|null>(null);
+
+    const searchSimilarityGraph = () => {
+        if(target != null&&selectCommunities.length != 0){
+            const targetId = target.id;
+            const sourceId = selectCommunities.map((d:Community)=>{
+                return d.id.toString();
+            });
+            const max = selectCommunities.reduce((pre: Community, next: Community)=>{
+                return pre.node_num<next.node_num?next:pre;
+            }).node_num;
+
+            getSimilarityGraph({target:targetId.toString(),source:sourceId, max: max}).then((res)=>{
+                const data = res.data;
+                console.log(data);
+                
+            });
+        }
+    }
 
     return (
     <div style={{width:'100%', height:'100%', padding:"0.5vw", boxSizing:"border-box"}}>
@@ -71,7 +90,7 @@ const ControlPanel: React.FC<{}> = () => {
                 }
             </div>
         </div>
-        <Button className='control-button'>Search Similarity Graph</Button>
+        <Button className='control-button' onClick={searchSimilarityGraph}>Search Similarity Graph</Button>
     </div>);
 };
 
