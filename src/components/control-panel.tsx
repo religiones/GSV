@@ -33,7 +33,6 @@ const ControlPanel: React.FC<{}> = () => {
             const max = selectCommunities.reduce((pre: Community, next: Community)=>{
                 return pre.node_num<next.node_num?next:pre;
             }).node_num;
-
             getSimilarityGraph({target:targetId.toString(),source:sourceId, max: max}).then((res)=>{
                 const data = res.data;
                 console.log(data);
