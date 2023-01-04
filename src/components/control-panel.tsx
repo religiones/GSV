@@ -1,13 +1,12 @@
 import { Col, InputNumber, Radio, Row, Button} from 'antd';
 import Select from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getSimilarityGraph } from '../api/control';
 import { Community } from './@types/communi-list';
 import { SettingData } from './@types/control-panel';
 import GraphItem from './common/graph-item';
 import "./style/control-panle.less";
-import * as d3 from 'd3';
 
 const ControlPanel: React.FC<{}> = () => {
     const [settingData, setSettingData] = useState<SettingData|undefined>({

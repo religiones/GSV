@@ -3,7 +3,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import { Community } from "../../components/@types/communi-list";
 export interface CommunityListState {
-    currentCommunityId: string,
+    currentCommunityId: string|number,
     currentCommunity: Community|null,
     communities: Community[]|null,
     selectCommunities: Community[]

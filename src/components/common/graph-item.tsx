@@ -4,6 +4,8 @@ import { Community } from '../@types/communi-list';
 import { SetState } from '../@types/graph-view';
 import "../style/graph-item.less";
 import * as d3 from 'd3'
+import { useDispatch } from 'react-redux';
+import { setCommunityId } from '../../store/features/community-list-slice';
 type GraphItemProps = {
     width?: number|string,
     height?: number|string,
@@ -18,6 +20,7 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
     const [initGraph, setInitGraph] = useState<Community|undefined>(graph);
     const nodeNumRef:LegacyRef<SVGSVGElement> = createRef();
     const graphInfoRef:LegacyRef<SVGSVGElement> = createRef();
+    const dispatch = useDispatch();
 
     useEffect(()=>{
         if(target!=null){
@@ -25,10 +28,15 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
         }
     },[target]);
 
+    // add target
     const setTargetHandle = () => {
         if(isTarget === false){
             setTarget(initGraph);
         }
+    }
+    // change target view
+    const setTargetViewHandle = () => {
+        dispatch(setCommunityId({currentCommunityId:initGraph?.id}));
     }
 
     useEffect(()=>{
@@ -102,16 +110,20 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
     }
 
     return (
-        <div onClick={setTargetHandle} className='item' style={{width: typeof(width) === 'string'?width:`${width}%`, height:typeof(height) === 'string'?height:`${height}%`}}>
+        <div className='item' style={{width: typeof(width) === 'string'?width:`${width}%`, height:typeof(height) === 'string'?height:`${height}%`}}>
             <Row style={{height:"100%", width:"100%"}} justify="center" align="middle">
-                <Col span={4} style={{height:"100%"}}>
+                <Col span={4} style={{height:"100%"}} onClick={setTargetHandle}>
                     <p className='graph-item-title'>{initGraph?.id}</p>
                 </Col>
-                <Col span={8} style={{height:"100%"}}>
-                    <svg ref={nodeNumRef} id='node-num' width={"100%"} height={"100%"}></svg>
-                </Col>
-                <Col span={10} style={{height:"100%"}}>
-                    <svg ref={graphInfoRef} width={"100%"} height={"100%"}></svg>
+                <Col className='graph-item-content' span={18} style={{height:"100%"}} onClick={setTargetViewHandle}>
+                    <Row style={{height:"100%", width:"100%"}} justify="center" align="middle">
+                        <Col span={11} style={{height:"100%"}}>
+                            <svg ref={nodeNumRef} id='node-num' width={"100%"} height={"100%"}></svg>
+                        </Col>
+                        <Col span={13} style={{height:"100%"}}>
+                            <svg ref={graphInfoRef} width={"100%"} height={"100%"}></svg>
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
        </div>);

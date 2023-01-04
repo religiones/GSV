@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux';
 import { getGraphByCommunity } from '../api/graph';
 import "./style/graph-view.less";
 
+
+
 let graph: Graph|null = null;
 const GraphView: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
@@ -14,6 +16,10 @@ const GraphView: React.FC<{}> = () => {
         // render graph
         initGraph(currentCommunityId);
     },[currentCommunityId]);
+
+    useEffect(()=>{
+
+    });
 
     const initGraph = (id: string) => {
         getGraphByCommunity({
