@@ -2,20 +2,28 @@ import G6, { Graph, GraphData, NodeConfig } from '@antv/g6';
 import { scaleLinear, min, max } from 'd3';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Community } from './@types/communi-list';
 
 let graph: Graph|null = null;
 const GraphNeighbor: React.FC<{}> = () => {
-    const { currentCommunity, currentCommunityId, communities } = useSelector((store: any) => store.communityList)
+    const { currentCommunity, currentCommunityId, communities, selectCommunities} = useSelector((store: any) => store.communityList)
     
     useEffect(()=>{
-        initGraph(Number(currentCommunityId), currentCommunity.neighbour);
+        initGraph(currentCommunityId, currentCommunity.neighbour);
+        console.log(currentCommunity.neighbour);
+        
     },[currentCommunityId]);
+
 
     const initGraph = (id: number, neighbors: number[]) => {
         let data: GraphData = {
             nodes: [],
             edges: []
         };
+        const selectCommunitiesId = selectCommunities.map((community: Community)=>{
+            return community.id;
+        });
+        
         for(const community of communities){
             if(neighbors.includes(community.id)){
                 data.nodes?.push({
@@ -31,6 +39,7 @@ const GraphNeighbor: React.FC<{}> = () => {
                     source: id.toString(),
                     target: community.id.toString()
                 });
+                
             }
             if(id === community.id){
                 data.nodes?.push({

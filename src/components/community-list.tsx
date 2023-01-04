@@ -5,7 +5,7 @@ import "./style/community.less";
 import taggle from 'lineupjs/build/src/ui/taggle';
 import { buildNumberColumn, buildStringColumn } from 'lineupjs';
 import { useDispatch } from 'react-redux';
-import { setCommunityId, setCommunity, setCommunities, setSelectCommunities } from '../store/features/community-list-slice';
+import { setCommunity, setCommunities, setSelectCommunities } from '../store/features/community-list-slice';
 import { Community } from './@types/communi-list';
 
 const CommunityList: React.FC<{}> = () => {
@@ -50,7 +50,7 @@ const CommunityList: React.FC<{}> = () => {
                     const listId = idArray[idArray.length - 1];
                     const communityId = data[listId]["id"];
                     const community = data[listId];
-                    dispatch(setCommunityId({currentCommunityId: communityId}));
+                    console.log(community);
                     dispatch(setCommunity({currentCommunity: community}));
                     const selectCommunities:Community[] = [];
                     idArray.forEach(id=>{

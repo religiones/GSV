@@ -5,7 +5,7 @@ import { SetState } from '../@types/graph-view';
 import "../style/graph-item.less";
 import * as d3 from 'd3'
 import { useDispatch } from 'react-redux';
-import { setCommunityId } from '../../store/features/community-list-slice';
+import { setCommunity } from '../../store/features/community-list-slice';
 type GraphItemProps = {
     width?: number|string,
     height?: number|string,
@@ -36,7 +36,7 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
     }
     // change target view
     const setTargetViewHandle = () => {
-        dispatch(setCommunityId({currentCommunityId:initGraph?.id}));
+        dispatch(setCommunity({currentCommunity: initGraph}));
     }
 
     useEffect(()=>{
