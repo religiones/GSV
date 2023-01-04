@@ -4,8 +4,6 @@ import { useSelector } from 'react-redux';
 import { getGraphByCommunity } from '../api/graph';
 import "./style/graph-view.less";
 
-
-
 let graph: Graph|null = null;
 const GraphView: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
@@ -153,19 +151,21 @@ const GraphView: React.FC<{}> = () => {
                     },
                     plugins: [minimap, legend]
                 });
-
                 graph.data(data);
                 graph.render();
-
             }else{
                 graph.changeData(data);
             }
+
         });
     }
 
     return (
-        <div id='graph-container' style={{width:'100%', height:'100%', overflow:'hidden'}}>
-       </div>);
+        <div className='graph-wrap'>
+            <span id='graph-title'>{`community: ${currentCommunity===null?'null':currentCommunity.id}`}</span>
+            <div id='graph-container' style={{width:'100%', height:'100%', overflow:'hidden'}}></div>
+       </div>
+       );
 };
 
 export default GraphView

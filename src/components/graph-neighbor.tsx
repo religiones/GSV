@@ -3,16 +3,17 @@ import { scaleLinear, min, max } from 'd3';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Community } from './@types/communi-list';
+import "./style/graph-view.less";
 
 let graph: Graph|null = null;
 const GraphNeighbor: React.FC<{}> = () => {
-    const { currentCommunity, currentCommunityId, communities, selectCommunities} = useSelector((store: any) => store.communityList)
+    const { currentCommunity, communities, selectCommunities} = useSelector((store: any) => store.communityList)
     
     useEffect(()=>{
-        initGraph(currentCommunityId, currentCommunity.neighbour);
+        initGraph(currentCommunity.id, currentCommunity.neighbour);
         console.log(currentCommunity.neighbour);
         
-    },[currentCommunityId]);
+    },[currentCommunity.id]);
 
 
     const initGraph = (id: number, neighbors: number[]) => {
@@ -26,19 +27,35 @@ const GraphNeighbor: React.FC<{}> = () => {
         
         for(const community of communities){
             if(neighbors.includes(community.id)){
-                data.nodes?.push({
-                    id: community.id.toString(),
-                    label: community.id.toString(),
-                    node_num : community.node_num,
-                    style: {
-                        fill: "#CFFDE1",
-                        stroke: '#10A19D'
-                    }
-                });
-                data.edges?.push({
-                    source: id.toString(),
-                    target: community.id.toString()
-                });
+                if(selectCommunitiesId.includes(community.id)){
+                    data.nodes?.push({
+                        id: community.id.toString(),
+                        label: community.id.toString(),
+                        node_num : community.node_num,
+                        style: {
+                            fill: "#F4801F",
+                            stroke: '#10A19D'
+                        }
+                    });
+                    data.edges?.push({
+                        source: id.toString(),
+                        target: community.id.toString()
+                    });
+                }else{
+                    data.nodes?.push({
+                        id: community.id.toString(),
+                        label: community.id.toString(),
+                        node_num : community.node_num,
+                        style: {
+                            fill: "#CFFDE1",
+                            stroke: '#10A19D'
+                        }
+                    });
+                    data.edges?.push({
+                        source: id.toString(),
+                        target: community.id.toString()
+                    });
+                }
                 
             }
             if(id === community.id){
@@ -102,8 +119,11 @@ const GraphNeighbor: React.FC<{}> = () => {
     }
 
     return (
-        <div id='neighbor-container' style={{width:'100%', height:'100%', overflow:'hidden'}}>
-       </div>);
+        <div className='graph-wrap'>
+            <span id='graph-title'>{`community: ${currentCommunity===null?'null':currentCommunity.id}`}</span>
+            <div id='neighbor-container' style={{width:'100%', height:'100%', overflow:'hidden'}}></div>
+        </div>
+       );
 };
 
 export default GraphNeighbor

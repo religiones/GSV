@@ -6,6 +6,7 @@ import "../style/graph-item.less";
 import * as d3 from 'd3'
 import { useDispatch } from 'react-redux';
 import { setCommunity } from '../../store/features/community-list-slice';
+
 type GraphItemProps = {
     width?: number|string,
     height?: number|string,
