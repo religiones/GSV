@@ -4,11 +4,13 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import communityListSlice from "./features/community-list-slice";
+import graphSlice from "./features/graph-slice";
 
 const store = configureStore({
     // combine all slices
     reducer: {
-        communityList: communityListSlice
+        communityList: communityListSlice,
+        graph: graphSlice
     }
 });
 

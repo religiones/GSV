@@ -3,6 +3,7 @@ import Select from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSimilarityGraph } from '../api/control';
+import { setGraphDistance, setGraphRank } from '../store/features/graph-slice';
 import { Community } from './@types/communi-list';
 import { SettingData } from './@types/control-panel';
 import GraphItem from './common/graph-item';
@@ -17,7 +18,7 @@ const ControlPanel: React.FC<{}> = () => {
         epoch: 3,
         similarity: "KNN (K-Nearest Neighbor)"
     });
-
+    const dispatch = useDispatch();
     const algorithmOption = [{label:"skip-gram", value:"skip-gram"},{label:"CBOW", value:"CBOW"}];
     const optimizeOption = [{label:"hierachical softmax", value:"hierachical softmax"},{label:"neigative sampling", value:"neigative sampling"}];
     const { selectCommunities, currentCommunityId } = useSelector((store: any) => store.communityList);
@@ -34,8 +35,9 @@ const ControlPanel: React.FC<{}> = () => {
             }).node_num;
             getSimilarityGraph({target:targetId.toString(),source:sourceId, max: max}).then((res)=>{
                 const data = res.data;
-                console.log(data);
-                
+                const {distance, rank} = data;
+                dispatch(setGraphRank({graphRank: rank}));
+                dispatch(setGraphDistance({graphDistance: distance}));
             });
         }
     }

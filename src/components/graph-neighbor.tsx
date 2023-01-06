@@ -11,8 +11,6 @@ const GraphNeighbor: React.FC<{}> = () => {
     
     useEffect(()=>{
         initGraph(currentCommunity.id, currentCommunity.neighbour);
-        console.log(currentCommunity.neighbour);
-        
     },[currentCommunity.id]);
 
 

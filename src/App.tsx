@@ -10,8 +10,9 @@ import './App.less';
 import CommunityList from './components/community-list';
 import ControlPanel from './components/control-panel';
 import GraphEmbedding from './components/graph-embedding';
-import GraphInformation from './components/graph-information';
+import GraphRankList from './components/graph-rank-list';
 import GraphNeighbor from './components/graph-neighbor';
+import GraphRankGallery from './components/graph-rank-gallery';
 import GraphView from './components/graph-view';
 
 
@@ -63,6 +64,11 @@ function App() {
                     type: 'tab',
                     name: "community list",
                     component:"community-list"
+                  },
+                  {
+                    type: 'tab',
+                    name: "graph rank gallery",
+                    component: "graph-rank-gallery"
                   }
                 ]
               },
@@ -72,8 +78,8 @@ function App() {
                 children:[
                   {
                     type: 'tab',
-                    name: "graph embedding",
-                    component:"graph-embedding"
+                    name: "graph rank list",
+                    component:"graph-rank-list"
                   }
                 ]
               }
@@ -85,8 +91,8 @@ function App() {
             children:[
               {
                 type: 'tab',
-                name: "graph information",
-                component:"graph-information"
+                name: "graph embedding",
+                component:"graph-embedding"
               }
             ]
           }
@@ -105,12 +111,14 @@ function App() {
         return <GraphView/>;
       case "community-list":
         return <CommunityList/>;
-      case "graph-information":
-        return <GraphInformation/>;
       case "graph-embedding":
         return <GraphEmbedding/>;
+      case "graph-rank-list":
+        return <GraphRankList/>;
       case "graph-neighbor":
         return <GraphNeighbor/>;
+      case "graph-rank-gallery":
+        return <GraphRankGallery/>;
       default:
         return <></>
     }
