@@ -48,9 +48,7 @@ const CommunityList: React.FC<{}> = () => {
                 lineUp.on('selectionChanged', (idArray: number[]) => {
                     //defalut choose the last element
                     const listId = idArray[idArray.length - 1];
-                    const communityId = data[listId]["id"];
                     const community = data[listId];
-                    console.log(community);
                     dispatch(setCommunity({currentCommunity: community}));
                     const selectCommunities:Community[] = [];
                     idArray.forEach(id=>{

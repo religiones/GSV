@@ -1,11 +1,18 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { Community } from './@types/communi-list';
+import GraphRankView from './common/graph-rank-view';
 
 const GraphRankList: React.FC<{}> = () => {
     const {graphRank, graphDistance} = useSelector((store: any)=>store.graph);
+    const {selectCommunities} = useSelector((store: any)=>store.communityList);
+
+    const setGraphByRank = ((rank: number, communities: Community[])=>{
+        return communities[rank];
+    });
+
     useEffect(()=>{
         console.log(graphRank);
-        
     },[graphRank]);
 
     useEffect(()=>{
@@ -15,8 +22,8 @@ const GraphRankList: React.FC<{}> = () => {
     return (
         <div style={{width:'100%', height:'100%', overflowY:"scroll"}}>
             {
-                graphRank.map((rank:number, id: number)=>{
-                    return (<div key={id}>{rank}</div>);
+                graphDistance.map((distance:number, id: number)=>{
+                    return <GraphRankView key={id} distance={distance} graph={setGraphByRank(graphRank[id],selectCommunities)}/>;
                 })
             }
        </div>);

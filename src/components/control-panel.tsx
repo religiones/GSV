@@ -21,7 +21,7 @@ const ControlPanel: React.FC<{}> = () => {
     const dispatch = useDispatch();
     const algorithmOption = [{label:"skip-gram", value:"skip-gram"},{label:"CBOW", value:"CBOW"}];
     const optimizeOption = [{label:"hierachical softmax", value:"hierachical softmax"},{label:"neigative sampling", value:"neigative sampling"}];
-    const { selectCommunities, currentCommunityId } = useSelector((store: any) => store.communityList);
+    const { selectCommunities } = useSelector((store: any) => store.communityList);
     const [target, setTarget] = useState<Community|null>(null);
 
     const searchSimilarityGraph = () => {
@@ -41,6 +41,11 @@ const ControlPanel: React.FC<{}> = () => {
             });
         }
     }
+
+    useEffect(()=>{
+        console.log(selectCommunities);
+        
+    },[selectCommunities])
 
     return (
     <div style={{width:'100%', height:'100%', padding:"0.5vw", boxSizing:"border-box"}}>

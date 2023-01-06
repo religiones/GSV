@@ -24,6 +24,10 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
     const dispatch = useDispatch();
 
     useEffect(()=>{
+        setInitGraph(graph);
+    },[graph]);
+
+    useEffect(()=>{
         if(target!=null){
             setInitGraph(target);
         }
