@@ -44,7 +44,6 @@ const ControlPanel: React.FC<{}> = () => {
 
     useEffect(()=>{
         console.log(selectCommunities);
-        
     },[selectCommunities])
 
     return (

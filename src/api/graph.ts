@@ -7,7 +7,7 @@ export const connectTest = () => {
     })
 }
 
-export const getGraphByCommunity = (params:{community: string}) => {
+export const getGraphByCommunity = (params:{community: number}) => {
     return Axios({
         url: "/api/graph",
         method: "post",

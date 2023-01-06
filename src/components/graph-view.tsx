@@ -17,7 +17,7 @@ const GraphView: React.FC<{}> = () => {
         }
     },[currentCommunity?.id]);
 
-    const initGraph = (id: string) => {
+    const initGraph = (id: number) => {
         getGraphByCommunity({
             community: id
         }).then((res)=>{
