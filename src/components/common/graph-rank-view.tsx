@@ -22,6 +22,7 @@ const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
                 const data = res.data;
                 if(graphRef.current != undefined){
                     const container = graphRef.current;
+                    container.removeChild;
                     const graphView = new G6.Graph({
                         container: container,
                         fitView: true,
