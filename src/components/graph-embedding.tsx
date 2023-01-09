@@ -23,8 +23,6 @@ const GraphEmbedding: React.FC<{}> = () => {
         const width = document.getElementById("scatter")?.clientWidth;
         const margin = {left: 20, top: 10, right: 10 , bottom: 20};
         svg.selectChildren().remove();
-        console.log("initScatter");
-        
         const xMin = d3.min(pos, (node:number[])=>node[0]);
         const xMax = d3.max(pos, (node: number[])=>node[0]);
         const yMin = d3.min(pos, (node:number[])=>node[1]);
