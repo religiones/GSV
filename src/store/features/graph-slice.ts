@@ -3,13 +3,15 @@ import { createSlice } from "@reduxjs/toolkit"
 export interface graphState {
     graphRank: number[],
     graphDistance: number[],
-    focusGraphs: number[]
+    focusGraphs: number[],
+    embeddingGraph: number|undefined
 }
 
 const initialState: graphState = {
     graphRank: [],
     graphDistance: [],
-    focusGraphs: []
+    focusGraphs: [],
+    embeddingGraph: undefined
 }
 
 // create a slice
@@ -26,10 +28,13 @@ export const graphSlice = createSlice({
         },
         setFocusGraphs: (state: graphState, {payload}) => {
             state.focusGraphs = payload.focusGraphs;
+        },
+        setEmbeddingGraph: (state: graphState, {payload}) => {
+            state.embeddingGraph = payload.embeddingGraph;
         }
     }
 })
 // export actions
-export const {setGraphRank, setGraphDistance, setFocusGraphs} = graphSlice.actions;
+export const {setGraphRank, setGraphDistance, setFocusGraphs, setEmbeddingGraph} = graphSlice.actions;
 
 export default graphSlice.reducer;
