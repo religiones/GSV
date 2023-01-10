@@ -9,25 +9,25 @@ import * as d3 from 'd3';
 
 type GraphRankViewProps = {
     distance: number,
-    graph: Community
+    graphId: number
 }
 
 const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
-    const {distance, graph} = props;
+    const {distance, graphId} = props;
     const graphRef:LegacyRef<HTMLDivElement> = createRef();
     const dispatch = useDispatch();
 
     const graphRankViewClickHandle = () => {
-        dispatch(setEmbeddingGraph({embeddingGraph: graph.id}));
+        dispatch(setEmbeddingGraph({embeddingGraph: graphId}));
     }    
 
     useEffect(()=>{
         initGraphRankView();
-    },[graph]);
+    },[graphId]);
 
     const initGraphRankView = () => {
-        if(graph != null){
-            getGraphByCommunity({community:graph.id}).then((res)=>{
+        if(graphId != null){
+            getGraphByCommunity({community:graphId}).then((res)=>{
                 const data = res.data;
                 if(graphRef.current != undefined){
                     const container = graphRef.current;
@@ -52,7 +52,7 @@ const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
         <div className='graph-rank-view-container' style={{width:'100%', height:'20vh'}}>
             <div className='graph-rank-view-title'>
                 <span>distance: {distance.toFixed(2)} </span>|
-                <span style={{marginLeft:"0.2vw"}}>community: {graph.id}</span>
+                <span style={{marginLeft:"0.2vw"}}>community: {graphId}</span>
             </div>
             <div className='graph-rank-view-content' onClick={graphRankViewClickHandle}>
                 <div ref={graphRef} style={{width:'100%', height:'100%', overflow:'hidden'}}></div>

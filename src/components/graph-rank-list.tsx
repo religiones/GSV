@@ -8,16 +8,15 @@ const GraphRankList: React.FC<{}> = () => {
     const {selectCommunities} = useSelector((store: any)=>store.communityList);
 
     const setGraphByRank = ((rank: number)=>{
-        return {...selectCommunities[rank]};
+        return selectCommunities[rank].id;
     });
-
 
     // bug: selectCommunities变换 graphDistance/graphRank 不变 且 setGraphByRank会自动调用
     return (
         <div style={{width:'100%', height:'100%', overflowY:"scroll"}}>
             {
-                graphDistance.length == selectCommunities.length?graphDistance.map((dis:number, id: number)=>{
-                    return <GraphRankView key={id} distance={dis} graph={setGraphByRank(graphRank[id])}/>;
+                graphDistance.length == selectCommunities.length?graphDistance.map((distance: number, id: number)=>{
+                    return <GraphRankView key={id} distance={distance} graphId={setGraphByRank(graphRank[id])}/>;
                 }):<></>
             }
        </div>);
