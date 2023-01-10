@@ -3,7 +3,6 @@ import React, { createRef, LegacyRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { getGraphByCommunity } from '../../api/graph';
 import { setEmbeddingGraph } from '../../store/features/graph-slice';
-import { Community } from '../@types/communi-list';
 import "../style/graph-rank-view.less";
 import * as d3 from 'd3';
 

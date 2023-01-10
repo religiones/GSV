@@ -9,7 +9,6 @@ const GraphEmbedding: React.FC<{}> = () => {
     const matrixRef:LegacyRef<SVGSVGElement> = createRef();
     const scatterRef:LegacyRef<SVGSVGElement> = createRef();
     useEffect(()=>{
-        console.log(embeddingGraph);
         getGraphEmbeddingByCommunity({community:embeddingGraph}).then(res=>{
             const { embedding, pos, id } = res.data; 
             initMatrix(embedding);

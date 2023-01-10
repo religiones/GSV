@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
-import { Community } from './@types/communi-list';
 import GraphRankView from './common/graph-rank-view';
 
 const GraphRankList: React.FC<{}> = () => {
@@ -11,7 +10,7 @@ const GraphRankList: React.FC<{}> = () => {
         return selectCommunities[rank].id;
     });
 
-    // bug: selectCommunities变换 graphDistance/graphRank 不变 且 setGraphByRank会自动调用
+    // bug: selectCommunities变换 graphDistance/graphRank 不变 且 setGraphByRank会自动调用: 已修复 向组件传对象导致的问题
     return (
         <div style={{width:'100%', height:'100%', overflowY:"scroll"}}>
             {
