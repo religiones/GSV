@@ -79,8 +79,6 @@ const GraphNeighbor: React.FC<{}> = () => {
         data["nodes"]?.forEach(node => {
             node.size = linear(node.node_num as number);
         });
-        console.log(data);
-        
         if(graph === null){
             graph = new G6.Graph({
                 container: "neighbor-container",

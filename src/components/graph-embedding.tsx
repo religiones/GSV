@@ -6,7 +6,7 @@ import { getGraphEmbeddingByCommunity } from '../api/graph';
 
 const GraphEmbedding: React.FC<{}> = () => {
     const {embeddingGraph} = useSelector((store: any)=>store.graph);
-    const matrixRef:LegacyRef<SVGSVGElement> = createRef();
+    const matrixRef:LegacyRef<HTMLCanvasElement> = createRef();
     const scatterRef:LegacyRef<SVGSVGElement> = createRef();
     useEffect(()=>{
         if(embeddingGraph != undefined){
@@ -56,16 +56,39 @@ const GraphEmbedding: React.FC<{}> = () => {
         
     }
 
-    const initMatrix = (embedding: any) => {
-
+    const initMatrix = (embedding: number[][]) => {
+        const canvas = matrixRef?.current;
+        const nodeNum = embedding.length;
+        const rectWidth = 4;
+        const rectHeight = canvas?.clientHeight as number/128;
+        const min = d3.min(embedding,(embedding:number[])=>d3.min(embedding));
+        const max = d3.max(embedding, (embedding:number[])=>d3.max(embedding));
+        const normalize = d3.scaleLinear().domain([min as number, max as number]).range([0, 1]);
+        const colorScale = d3.scaleSequential(d3.interpolateYlGnBu);
+        canvas?.setAttribute("width", (nodeNum*rectWidth).toString());
+        if(canvas?.getContext){
+            const context = canvas.getContext("2d");
+            if(context != null){
+                context.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
+                for(let i = 0; i < embedding.length; i++){
+                    for(let j = 0; j < embedding[i].length; j++){
+                        context.fillStyle = colorScale(embedding[i][j]);
+                        context.fillRect(i*rectWidth,j*rectHeight,rectWidth,rectHeight);
+                    }
+                }
+            }
+            
+        }else{
+            console.log("浏览器不支持canvas");
+        }
     }
 
     return (
         <div style={{width:'100%', height:'100%'}}>
             <Row style={{width:"100%", height:"100%"}}>
                 <Col span={16}>
-                    <div style={{padding:"0.5vw", width:"100%", height:"100%", boxSizing:"border-box"}}>
-                        <svg ref={matrixRef} id='matrix' width={"100%"} height={"100%"}></svg>
+                    <div style={{padding:"0.5vw", width:"100%", height:"100%", boxSizing:"border-box", overflowX:"scroll", overflowY:"hidden"}}>
+                        <canvas ref={matrixRef} id='matrix' style={{height:"100%"}}></canvas>
                     </div>
                 </Col>
                 <Col span={8}>

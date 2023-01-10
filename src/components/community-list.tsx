@@ -26,7 +26,6 @@ const CommunityList: React.FC<{}> = () => {
             data.sort((a: any, b:any)=>{
                 return (b["node_num"]-a["node_num"]);
             });
-            console.log(data);
             dispatch(setCommunities({communities: data}));
             if(container.current != null){
                 lineUp = LineUpJs.builder(data).column(buildStringColumn('id').width(listStringWidth))
