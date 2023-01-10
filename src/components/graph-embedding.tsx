@@ -63,7 +63,6 @@ const GraphEmbedding: React.FC<{}> = () => {
         const rectHeight = canvas?.clientHeight as number/128;
         const min = d3.min(embedding,(embedding:number[])=>d3.min(embedding));
         const max = d3.max(embedding, (embedding:number[])=>d3.max(embedding));
-        const normalize = d3.scaleLinear().domain([min as number, max as number]).range([0, 1]);
         const colorScale = d3.scaleSequential(d3.interpolateYlGnBu);
         canvas?.setAttribute("width", (nodeNum*rectWidth).toString());
         if(canvas?.getContext){
