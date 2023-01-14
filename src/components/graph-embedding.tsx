@@ -12,8 +12,10 @@ const GraphEmbedding: React.FC<{}> = () => {
         if(embeddingGraph != undefined){
             getGraphEmbeddingByCommunity({community:embeddingGraph}).then(res=>{
                 const { embedding, pos, id } = res.data; 
-                initMatrix(embedding);
-                initScatter(pos);
+                setTimeout(()=>{
+                    initMatrix(embedding);
+                    initScatter(pos);
+                },200);
             })
         }
     },[embeddingGraph]);
