@@ -1,8 +1,8 @@
 import G6 from '@antv/g6';
 import React, { createRef, LegacyRef, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getGraphByCommunity } from '../../api/graph';
-import { setEmbeddingGraph } from '../../store/features/graph-slice';
+import { setEmbeddingGraph, setFocusGraphs } from '../../store/features/graph-slice';
 import "../style/graph-rank-view.less";
 import * as d3 from 'd3';
 
@@ -14,10 +14,14 @@ type GraphRankViewProps = {
 const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
     const {distance, graphId} = props;
     const graphRef:LegacyRef<HTMLDivElement> = createRef();
+    const { focusGraphs } = useSelector((store: any)=>store.graph);
     const dispatch = useDispatch();
 
     const graphRankViewClickHandle = () => {
         dispatch(setEmbeddingGraph({embeddingGraph: graphId}));
+        if(!focusGraphs.includes(graphId)){
+            dispatch(setFocusGraphs({focusGraphs: [...focusGraphs,graphId]}));
+        }
     }    
 
     useEffect(()=>{
