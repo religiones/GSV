@@ -22,3 +22,11 @@ export const getGraphEmbeddingByCommunity = (params:{community: number}) => {
         data: params
     })
 }
+
+export const getGraphsByCommunities = (params:{communities: number[]}) => {
+    return Axios({
+        url: "/api/graphs",
+        method: "post",
+        data: params
+    })
+}
