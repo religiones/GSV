@@ -9,9 +9,7 @@ const GraphRankGallery: React.FC<{}> = () => {
     const graphRef:LegacyRef<HTMLDivElement> = createRef();
 
     useEffect(()=>{
-        setTimeout(()=>{
-            initGraphs();
-        },500);
+        initGraphs();
     },[focusGraphs.length]);
 
     const initGraphs = () => {
@@ -85,7 +83,7 @@ const GraphRankGallery: React.FC<{}> = () => {
                             if(!combosId.includes( `combo-${id}`)){
                                 graph?.createCombo({
                                     id: `combo-${id}`,
-                                    label: `combo-${id}`,
+                                    label: `community-${id}`,
                                     labelCfg: {
                                         position: "top",
                                         style: {
@@ -116,14 +114,18 @@ const GraphRankGallery: React.FC<{}> = () => {
                     });
                 }else{
                     console.log("connot get graph ref");
-                    
                 }
             });
         }
     }
 
+    // const initGraphInfo =() => {
+        
+    // }
+
     return (
         <div style={{width:'100%', height:'100%'}}>
+            {/* <svg style={{position:"absolute",left:"0.5vw", width:"10vw", height:"100%"}}></svg> */}
             <div ref={graphRef} style={{width:"100%", height:"100%", overflow:"hidden"}}></div>
        </div>);
 };

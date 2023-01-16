@@ -25,17 +25,14 @@ const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
     }    
 
     useEffect(()=>{
-        setTimeout(()=>{
-            initGraphRankView();
-        },500);
+        initGraphRankView();
     },[graphId]);
 
     const initGraphRankView = () => {
-        if(graphId != null){
+        if(graphId != null && graphRef.current != null){
             getGraphByCommunity({community:graphId}).then((res)=>{
                 const data = res.data;
-                if(graphRef.current != null){
-                    const container = graphRef.current;
+                    const container = graphRef.current as HTMLElement;
                     d3.select(container).selectChildren().remove();
                     const graphView = new G6.Graph({
                         container: container,
@@ -48,10 +45,10 @@ const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
                     });
                     graphView.data(data);
                     graphView.render();
-                }else{
-                    console.log(graphRef.current);
-                }
             });
+        }else{
+            console.log(graphRef.current);
+            
         }
     }
 
