@@ -28,8 +28,6 @@ const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
         if(graphId != null && graphRef.current != null){
             initGraphRankView();
         }
-        console.log(111);
-        
     },[graphId, graphRef.current]);
 
     const initGraphRankView = () => {
