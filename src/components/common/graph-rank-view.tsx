@@ -25,31 +25,30 @@ const GraphRankView: React.FC<GraphRankViewProps> = (props) => {
     }    
 
     useEffect(()=>{
-        initGraphRankView();
-    },[graphId]);
+        if(graphId != null && graphRef.current != null){
+            initGraphRankView();
+        }
+        console.log(111);
+        
+    },[graphId, graphRef.current]);
 
     const initGraphRankView = () => {
-        if(graphId != null && graphRef.current != null){
-            getGraphByCommunity({community:graphId}).then((res)=>{
-                const data = res.data;
-                    const container = graphRef.current as HTMLElement;
-                    d3.select(container).selectChildren().remove();
-                    const graphView = new G6.Graph({
-                        container: container,
-                        fitView: true,
-                        fitViewPadding: 20,
-                        layout: {
-                            type: 'force',
-                            workerEnabled: true, 
-                        },
-                    });
-                    graphView.data(data);
-                    graphView.render();
-            });
-        }else{
-            console.log(graphRef.current);
-            
-        }
+        getGraphByCommunity({community:graphId}).then((res)=>{
+            const data = res.data;
+                const container = graphRef.current as HTMLElement;
+                d3.select(container).selectChildren().remove();
+                const graphView = new G6.Graph({
+                    container: container,
+                    fitView: true,
+                    fitViewPadding: 20,
+                    layout: {
+                        type: 'force',
+                        workerEnabled: true, 
+                    },
+                });
+                graphView.data(data);
+                graphView.render();
+        });
     }
 
     return (

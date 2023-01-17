@@ -49,11 +49,7 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
     const deleteViewHandle = () => {
         const temp = [...selectCommunities];
         temp.splice(temp.indexOf(initGraph),1);
-        console.log(temp);
-        
         dispatch(setSelectCommunities({selectCommunities:[...temp]}));
-        console.log(selectCommunities);
-        
     }
 
     useEffect(()=>{

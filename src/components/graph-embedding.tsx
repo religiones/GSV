@@ -9,16 +9,14 @@ const GraphEmbedding: React.FC<{}> = () => {
     const matrixRef:LegacyRef<HTMLCanvasElement> = createRef();
     const scatterRef:LegacyRef<SVGSVGElement> = createRef();
     useEffect(()=>{
-        if(embeddingGraph != undefined){
+        if(embeddingGraph != undefined && matrixRef.current != undefined && scatterRef.current != undefined){
             getGraphEmbeddingByCommunity({community:embeddingGraph}).then(res=>{
                 const { embedding, pos, id } = res.data; 
-                setTimeout(()=>{
-                    initMatrix(embedding);
-                    initScatter(pos);
-                },200);
-            })
+                initMatrix(embedding);
+                initScatter(pos);
+            });
         }
-    },[embeddingGraph]);
+    },[embeddingGraph, matrixRef.current, scatterRef.current]);
 
     const initScatter = (pos: any) => {
         const svg = d3.select(scatterRef?.current);
