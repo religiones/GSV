@@ -1,5 +1,4 @@
 // type definitions for graph-view
-
 export interface Node{
     id: string,
     property?: any,

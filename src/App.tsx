@@ -39,10 +39,6 @@ function App() {
           },{
             type:'tabset',
             children:[{
-              type:'tab',
-              name:"graph view",
-              component:"graph-view"
-            },{
                 type:'tab',
                 name:"graph neighbor",
                 component:"graph-neighbor"
@@ -61,14 +57,9 @@ function App() {
                 weight: 80,
                 children:[
                   {
-                    type: 'tab',
-                    name: "community list",
-                    component:"community-list"
-                  },
-                  {
-                    type: 'tab',
-                    name: "graph rank gallery",
-                    component: "graph-rank-gallery"
+                    type:'tab',
+                    name:"graph view",
+                    component:"graph-view"
                   }
                 ]
               },
@@ -91,9 +82,9 @@ function App() {
             children:[
               {
                 type: 'tab',
-                name: "graph embedding",
-                component:"graph-embedding"
-              }
+                name: "community list",
+                component:"community-list"
+              },
             ]
           }
           ]

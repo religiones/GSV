@@ -14,6 +14,7 @@
     "antd": "^5.0.1",
     "axios": "^1.2.0",
     "d3": "^7.6.1",
+    "d3-lasso": "^0.0.5",
     "flexlayout-react": "^0.7.4",
     "golden-layout": "^2.6.0",
     "lineupjs": "^4.7.0",

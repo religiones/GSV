@@ -24,6 +24,7 @@ const ControlPanel: React.FC<{}> = () => {
     const { selectCommunities } = useSelector((store: any) => store.communityList);
     const [target, setTarget] = useState<Community|null>(null);
 
+
     const searchSimilarityGraph = () => {
         if(target != null&&selectCommunities.length != 0){
             const targetId = target.id;

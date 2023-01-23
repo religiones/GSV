@@ -1,7 +1,10 @@
 import G6, { Graph } from '@antv/g6';
-import React, { useEffect } from 'react';
+import { Input, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getGraphByCommunity } from '../api/graph';
+import { getGraphByCommunity, getGraphEmbeddingByCommunity } from '../api/graph';
+import { Community } from './@types/communi-list';
+import { graphData} from './@types/graph-view';
 import "./style/graph-view.less";
 
 let graph: Graph|null = null;
@@ -10,6 +13,10 @@ const GraphView: React.FC<{}> = () => {
     '#D75D73','#E0592B', '#58B7B3', '#68bb8c','#3F3B6C','#CF0A0A'];
 
     const {currentCommunity} = useSelector((store: any)=>store.communityList);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [subGraphName, setSubGraphName] = useState<string>("");
+    const [currentSubGraph, setCurrentSubGraph] = useState<graphData|null>(null);
+
     useEffect(()=>{
         // render graph
         if(currentCommunity != null){
@@ -142,8 +149,34 @@ const GraphView: React.FC<{}> = () => {
                         }
                     },
                     modes: {
-                        default: ['drag-canvas', 'zoom-canvas', 'drag-node'],
-                        edit: ['click-select','brush-select']
+                        default: ['lasso-select','drag-canvas', 'zoom-canvas', 'drag-node'],
+                        edit: ['click-select','brush-select'],
+                        dragLasso: [
+                        {
+                            type: 'lasso-select',
+                            delegateStyle: {
+                            fill: '#f00',
+                            fillOpacity: 0.05,
+                            stroke: '#f00',
+                            lineWidth: 1,
+                            },
+                            onSelect: (nodes, edges) => {
+                                console.log('onSelect', nodes, edges);
+                            },
+                            trigger: 'drag',
+                        },'drag-node']
+                    },
+                    nodeStateStyles: {
+                    selected: {
+                        stroke: '#f00',
+                        lineWidth: 3,
+                    },
+                    },
+                    edgeStateStyles: {
+                    selected: {
+                        lineWidth: 3,
+                        stroke: '#f00',
+                    },
                     },
                     layout: {
                         type: 'force',
@@ -156,15 +189,47 @@ const GraphView: React.FC<{}> = () => {
             }else{
                 graph.changeData(data);
             }
-
+            graph.on('nodeselectchange', (e) => {
+                setIsModalOpen(true);
+                const data:{nodes:any[],edges:any[]} = e.selectedItems as {nodes:any[],edges:any[]};
+                const nodes = data.nodes.map((node:any)=>{
+                    return {id:node._cfg.id};
+                });
+                const edges = data.edges.map((edge:any)=>{
+                    return {source:edge._cfg.source._cfg.id,target:edge._cfg.target._cfg.id};
+                });
+                const subGraphData: graphData = {nodes:nodes,edges:edges};
+                // graph?.changeData(subGraphData);
+                setCurrentSubGraph(subGraphData);
+                // getGraphEmbeddingByCommunity({community:id}).then(res=>{
+                //     console.log(res.data);
+                // });
+            });
         });
     }
 
+    useEffect(()=>{
+        
+    },[currentSubGraph])
+
+    const okHandle = () => {
+        console.log({
+            name: subGraphName,
+            data: currentSubGraph
+        });
+        
+    }
+
     return (
-        <div className='graph-wrap'>
+        <>
+         <div className='graph-wrap'>
             <span id='graph-title'>{`community: ${currentCommunity===null?'null':currentCommunity.id}`}</span>
             <div id='graph-container' style={{width:'100%', height:'100%', overflow:'hidden'}}></div>
        </div>
+       <Modal title="subGraph" open={isModalOpen} onCancel={()=>{setIsModalOpen(false)}} onOk={okHandle}>
+            <Input onChange={(e)=>{setSubGraphName(e.target.value)}}></Input>
+      </Modal>
+       </>
        );
 };
 

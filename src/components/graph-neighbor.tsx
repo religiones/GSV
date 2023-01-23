@@ -16,8 +16,10 @@ const GraphNeighbor: React.FC<{}> = () => {
     },[selectCommunities]);
 
     useEffect(()=>{
-        initNeighborGraph(currentCommunity.id, currentCommunity.neighbour);
-    },[currentCommunity.id,selectNeighbor]);
+        if(currentCommunity != null && selectNeighbor.length != 0){
+            initNeighborGraph(currentCommunity.id, currentCommunity.neighbour);
+        }
+    },[currentCommunity,selectNeighbor]);
     
     const initNeighborGraph = (id:number, neighbors: number[])=>{
         let neighborCommunity:Community[] = [];
