@@ -1,21 +1,23 @@
-import G6, { Graph } from '@antv/g6';
+import G6, { Graph, GraphData } from '@antv/g6';
 import { Input, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getGraphByCommunity, getGraphEmbeddingByCommunity } from '../api/graph';
+import { setSubGraph, setSubGraphList } from '../store/features/graph-slice';
 import { Community } from './@types/communi-list';
-import { graphData} from './@types/graph-view';
+import { graphData, subGraphType} from './@types/graph-view';
 import "./style/graph-view.less";
 
 let graph: Graph|null = null;
 const GraphView: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
     '#D75D73','#E0592B', '#58B7B3', '#68bb8c','#3F3B6C','#CF0A0A'];
-
+    const dispatch = useDispatch();
+    const {subGraph, subGraphList} = useSelector((store: any)=> store.graph);
     const {currentCommunity} = useSelector((store: any)=>store.communityList);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [subGraphName, setSubGraphName] = useState<string>("");
-    const [currentSubGraph, setCurrentSubGraph] = useState<graphData|null>(null);
+    const [currentSubGraphData, setCurrentSubGraphData] = useState<graphData|null>(null);
 
     useEffect(()=>{
         // render graph
@@ -29,6 +31,8 @@ const GraphView: React.FC<{}> = () => {
             community: id
         }).then((res)=>{
             const data = res.data;
+            console.log(data);
+            
             // minimap plugins
             const minimap = new G6.Minimap({
                 size: [100, 100],
@@ -199,8 +203,10 @@ const GraphView: React.FC<{}> = () => {
                     return {source:edge._cfg.source._cfg.id,target:edge._cfg.target._cfg.id};
                 });
                 const subGraphData: graphData = {nodes:nodes,edges:edges};
-                // graph?.changeData(subGraphData);
-                setCurrentSubGraph(subGraphData);
+                console.log(subGraphData);
+                
+                graph?.changeData(subGraphData as GraphData);
+                setCurrentSubGraphData(subGraphData);
                 // getGraphEmbeddingByCommunity({community:id}).then(res=>{
                 //     console.log(res.data);
                 // });
@@ -208,16 +214,18 @@ const GraphView: React.FC<{}> = () => {
         });
     }
 
-    useEffect(()=>{
-        
-    },[currentSubGraph])
-
     const okHandle = () => {
-        console.log({
+        const newSubGraph = {
             name: subGraphName,
-            data: currentSubGraph
-        });
-        
+            data: currentSubGraphData
+        };
+        if(!subGraphList.map((sub_Graph:subGraphType)=>sub_Graph.name).includes(newSubGraph.name)){
+            dispatch(setSubGraphList({subGraphList:[...subGraphList, newSubGraph]}));
+            dispatch(setSubGraph({subGraph: newSubGraph}))
+        }else{
+            console.log(newSubGraph.name+" is exisited");
+        }
+        setIsModalOpen(false);
     }
 
     return (

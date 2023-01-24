@@ -1,17 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { subGraphType } from "../../components/@types/graph-view";
 
 export interface graphState {
     graphRank: number[],
     graphDistance: number[],
     focusGraphs: number[],
-    embeddingGraph: number|undefined
+    embeddingGraph: number|undefined,
+    subGraph:subGraphType|undefined,
+    subGraphList: subGraphType[]
 }
 
 const initialState: graphState = {
     graphRank: [],
     graphDistance: [],
     focusGraphs: [],
-    embeddingGraph: undefined
+    embeddingGraph: undefined,
+    subGraph: undefined,
+    subGraphList: []
 }
 
 // create a slice
@@ -31,10 +36,16 @@ export const graphSlice = createSlice({
         },
         setEmbeddingGraph: (state: graphState, {payload}) => {
             state.embeddingGraph = payload.embeddingGraph;
+        },
+        setSubGraph: (state: graphState, {payload}) => {
+            state.subGraph = payload.subGraph;
+        },
+        setSubGraphList: (state: graphState, {payload}) => {
+            state.subGraphList = payload.subGraphList;
         }
     }
 })
 // export actions
-export const {setGraphRank, setGraphDistance, setFocusGraphs, setEmbeddingGraph} = graphSlice.actions;
+export const {setGraphRank, setGraphDistance, setFocusGraphs, setEmbeddingGraph, setSubGraph, setSubGraphList} = graphSlice.actions;
 
 export default graphSlice.reducer;

@@ -14,4 +14,9 @@ export type graphData = {
     edges: EDge[]
 }
 
+export type subGraphType = {
+    name: string,
+    data: graphData
+}
+
 export type SetState<T> = Dispatch<SetStateAction<T>>;

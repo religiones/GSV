@@ -14,6 +14,7 @@ import GraphRankList from './components/graph-rank-list';
 import GraphNeighbor from './components/graph-neighbor';
 import GraphRankGallery from './components/graph-rank-gallery';
 import GraphView from './components/graph-view';
+import GraphViewNew from './components/graph-view-new';
 
 
 function App() {
@@ -99,7 +100,7 @@ function App() {
       case "control-panel":
         return <ControlPanel/>;
       case "graph-view":
-        return <GraphView/>;
+        return <GraphViewNew/>;
       case "community-list":
         return <CommunityList/>;
       case "graph-embedding":
