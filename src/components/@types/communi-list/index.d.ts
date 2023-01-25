@@ -3,10 +3,8 @@
 export type props = {
     
 }
-export interface Community {
-    id: number,
-    node_num: number,
-    wrong_num: number,
+
+export interface Attrtion {
     porn: number,
     gambling: number,
     fraud: number,
@@ -15,7 +13,11 @@ export interface Community {
     hacker: number,
     trading: number,
     pay: number,
-    other: number,
+}
+export interface Community extends Attrtion{
+    id: number,
+    node_num: number,
+    wrong_num: number,
     key: string,
     wrong_list: number[],
     neighbour: number[]
