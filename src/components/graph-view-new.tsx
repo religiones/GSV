@@ -8,6 +8,8 @@ import { Attrtion } from './@types/communi-list';
 const GraphViewNew: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
     '#D75D73','#E0592B', '#58B7B3', '#68bb8c','#3F3B6C','#CF0A0A'];
+    const band = ['porn','gambling','fraud','drug','gun','hacker','trading','pay','other'];
+    // const scaleBand = d3.scaleOrdinal().domain(band).range(colorArray);
     const edgeColor = "#ABB7BD";
     const minNodeSize = 5;
     const maxNodeSize = 10;
@@ -49,8 +51,6 @@ const GraphViewNew: React.FC<{}> = () => {
             const zoom = d3.zoom().scaleExtent([-8, 8]).on('zoom', function (current){
                 zoomed(current.transform)
             });
-            console.log(max);
-            
             const svg = d3.select(graphRef.current);
             svg.selectChildren().remove();
             const graphContainer = svg.append("g");
@@ -123,7 +123,25 @@ const GraphViewNew: React.FC<{}> = () => {
                         }
                     });
             // 绘制环图
-            const arc = d3.arc().innerRadius(9).outerRadius(12);
+            const arc = d3.arc().innerRadius((d:any)=>{return maxNodeSize;})
+                .outerRadius(maxNodeSize*1.4)
+            const angle = d3.pie();
+            const cycle = node.append("g").attr("class","cycle");
+            
+            d3.selectAll(".cycle").each(function(d:any){
+                if(d["donutAttrs"] != undefined){
+                    if(d3.sum(Object.values(d["donutAttrs"])) != 0){
+                        d3.select(this).selectAll("path").data(angle(Object.values(d["donutAttrs"])))
+                        .join("path")
+                        .attr("class","cycle-path")
+                        .attr("d", (d: any)=>arc(d))
+                        .attr("fill",(d: any, index: number)=>{return colorArray[index-1];});
+                    }
+                }else{
+                    d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
+                }
+            });
+                    
             simulation.nodes(data.nodes).on("tick", ticked);      
             // @ts-ignore    
             simulation.force("link")?.links(data.edges);
@@ -132,9 +150,9 @@ const GraphViewNew: React.FC<{}> = () => {
                     .attr("y1", function(d:any) { return d.source.y; })
                     .attr("x2", function(d:any) { return d.target.x; })
                     .attr("y2", function(d:any) { return d.target.y; });
-                cir
-                    .attr("cx", function(d:any) { return d.x; })
+                cir.attr("cx", function(d:any) { return d.x; })
                     .attr("cy", function(d:any) { return d.y; });
+                cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
             }
             function dragstarted(d:any) {
                 if (!d.active) simulation.alphaTarget(0.3).restart();
