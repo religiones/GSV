@@ -1,6 +1,6 @@
 import React, { createRef, LegacyRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getGraphByCommunity } from '../api/graph';
+import { getGraphByCommunity, getSimilarityNodes } from '../api/graph';
 import * as d3 from 'd3';
 import "./style/graph-view.less";
 import { Attrtion } from './@types/communi-list';
@@ -49,8 +49,14 @@ const GraphViewNew: React.FC<{}> = () => {
             const max: number = d3.max(attrList.map((attr:Attrtion)=>d3.sum(Object.values(attr)))) as number;
             const radiusScale = d3.scaleLinear().domain([min, max]).range([minNodeSize, maxNodeSize]);
             const zoom = d3.zoom().scaleExtent([-8, 8]).on('zoom', function (current){
-                zoomed(current.transform)
+                zoomed(current.transform);
+                current.sourceEvent.stopPropagation();
+            }).on("start", function (event) {
+                event.sourceEvent.stopPropagation();
+            }).on("end", function (event) {
+                event.sourceEvent.stopPropagation();
             });
+
             const svg = d3.select(graphRef.current);
             svg.selectChildren().remove();
             const graphContainer = svg.append("g");
@@ -93,6 +99,18 @@ const GraphViewNew: React.FC<{}> = () => {
                 .selectAll('g')
                 .data(data.nodes)
                 .join('g')
+                .on("click",(e)=>{
+                    const data = e.target.__data__;
+                    const graphId = data["community"];
+                    const nodeId = data["id"];
+                    getSimilarityNodes({nodes:[nodeId],community:graphId}).then(res=>{
+                        console.log(res.data);
+                        const data = res.data;
+                        data.forEach((id:string)=>{
+                            d3.select(`#${id}`).attr("stroke","red")
+                        })
+                    })
+                })
                 .call(
                 //@ts-ignore
                 d3.drag()
@@ -110,6 +128,7 @@ const GraphViewNew: React.FC<{}> = () => {
                         }
                         
                     })
+                    .attr("id", (d: any)=>d.id)
                     .attr("stroke","grey")
                     .attr("stroke-opacity",0.3)
                     .attr("stroke-width", 3)
@@ -158,17 +177,20 @@ const GraphViewNew: React.FC<{}> = () => {
                 if (!d.active) simulation.alphaTarget(0.3).restart();
                 d.subject.fx = d.x;
                 d.subject.fy = d.y;
+                d.sourceEvent.stopPropagation();
             }
             
             function dragged(d:any) {
                 d.subject.fx = d.x;
                 d.subject.fy = d.y;
+                d.sourceEvent.stopPropagation();
             }
             
             function dragended(d:any) {
                 if (!d.active) simulation.alphaTarget(0);
                 d.subject.fx = null;
                 d.subject.fy = null;
+                d.sourceEvent.stopPropagation();
             }
 
             function zoomed(transform: any) {

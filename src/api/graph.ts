@@ -30,3 +30,11 @@ export const getGraphsByCommunities = (params:{communities: number[]}) => {
         data: params
     })
 }
+
+export const getSimilarityNodes = (params: {nodes:string[], community: number}) => {
+    return Axios({
+        url: "/api/similarityNodes",
+        method: "post",
+        data: params
+    })
+}
