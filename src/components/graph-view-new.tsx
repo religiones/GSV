@@ -1,9 +1,10 @@
 import React, { createRef, LegacyRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { getGraphByCommunity, getSimilarityNodes } from '../api/graph';
+import { useDispatch, useSelector } from 'react-redux';
+import { getGraphByCommunity } from '../api/graph';
 import * as d3 from 'd3';
 import "./style/graph-view.less";
 import { Attrtion } from './@types/communi-list';
+import { setSelectNode } from '../store/features/graph-slice';
 
 const GraphViewNew: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
@@ -13,7 +14,7 @@ const GraphViewNew: React.FC<{}> = () => {
     const edgeColor = "#ABB7BD";
     const minNodeSize = 5;
     const maxNodeSize = 10;
-
+    const dispatch = useDispatch();
     const {currentCommunity} = useSelector((store: any)=>store.communityList);
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     useEffect(()=>{
@@ -28,7 +29,6 @@ const GraphViewNew: React.FC<{}> = () => {
             community: id
         }).then(res=>{
             const data = res.data;
-            console.log(data);
             const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
                 if(node["donutAttrs"] != undefined){
                     return node["donutAttrs"]
@@ -96,20 +96,18 @@ const GraphViewNew: React.FC<{}> = () => {
 
             const node = graphContainer.append('g')
                 .attr("class", "nodes")
+                .attr("stroke","grey")
+                .attr("stroke-opacity",0.3)
+                .attr("stroke-width", 3)
                 .selectAll('g')
                 .data(data.nodes)
                 .join('g')
-                .on("click",(e)=>{
+                .on("click",function(e){
                     const data = e.target.__data__;
-                    const graphId = data["community"];
                     const nodeId = data["id"];
-                    getSimilarityNodes({nodes:[nodeId],community:graphId}).then(res=>{
-                        console.log(res.data);
-                        const data = res.data;
-                        data.forEach((id:string)=>{
-                            d3.select(`#${id}`).attr("stroke","red")
-                        })
-                    })
+                    d3.selectAll(".nodes").attr("stroke","grey");
+                    d3.select(this).attr("stroke","red");
+                    dispatch(setSelectNode({selectNode: nodeId}));
                 })
                 .call(
                 //@ts-ignore
@@ -129,9 +127,6 @@ const GraphViewNew: React.FC<{}> = () => {
                         
                     })
                     .attr("id", (d: any)=>d.id)
-                    .attr("stroke","grey")
-                    .attr("stroke-opacity",0.3)
-                    .attr("stroke-width", 3)
                     .attr("fill",(d:any)=>{
                         if(d.nodeType == "Domain"){
                             return "#68bb8c"

@@ -1,7 +1,9 @@
+import { Attrtion } from "../communi-list"
+
 // type definitions for graph-view
 export interface Node{
     id: string,
-    property?: any,
+    property?: Attrtion,
 }
 
 export interface Edge{
@@ -17,6 +19,13 @@ export type graphData = {
 export type subGraphType = {
     name: string,
     data: graphData
+}
+
+export type CombineNodes  = {
+    name: string,
+    nodeNum: number,
+    community: number,
+    nodes: string[]
 }
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;

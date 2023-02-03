@@ -32,7 +32,6 @@ const GraphView: React.FC<{}> = () => {
         }).then((res)=>{
             const data = res.data;
             console.log(data);
-            
             // minimap plugins
             const minimap = new G6.Minimap({
                 size: [100, 100],

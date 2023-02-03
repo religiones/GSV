@@ -41,7 +41,7 @@ const GraphItem: React.FC<GraphItemProps> = (props) => {
         }
     }
     // change target view
-    const setTargetViewHandle = () => {
+    const setTargetViewHandle = (e: any) => {
         dispatch(setCommunity({currentCommunity: initGraph}));
     }
 

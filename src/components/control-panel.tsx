@@ -1,11 +1,12 @@
-import { Col, InputNumber, Radio, Row, Button} from 'antd';
-import Select from 'antd/es/select';
+import { Col, InputNumber, Radio, Row, Button, Slider, Modal, Select, Input} from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSimilarityGraph } from '../api/control';
-import { setGraphDistance, setGraphRank } from '../store/features/graph-slice';
+import { getSimilarityNodes } from '../api/graph';
+import { setCombineNodes, setCombineNodesList, setGraphDistance, setGraphRank } from '../store/features/graph-slice';
 import { Community } from './@types/communi-list';
 import { SettingData } from './@types/control-panel';
+import { CombineNodes } from './@types/graph-view';
 import GraphItem from './common/graph-item';
 import "./style/control-panle.less";
 
@@ -21,28 +22,51 @@ const ControlPanel: React.FC<{}> = () => {
     const dispatch = useDispatch();
     const algorithmOption = [{label:"skip-gram", value:"skip-gram"},{label:"CBOW", value:"CBOW"}];
     const optimizeOption = [{label:"hierachical softmax", value:"hierachical softmax"},{label:"neigative sampling", value:"neigative sampling"}];
-    const { selectCommunities } = useSelector((store: any) => store.communityList);
+    const { selectCommunities, currentCommunity } = useSelector((store: any) => store.communityList);
+    const { selectNode, combineNodesList } = useSelector((store: any) => store.graph);
     const [target, setTarget] = useState<Community|null>(null);
+    const [sliderData, setSliderData] = useState<number>(0);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [combineNodesName, setCombineNodesName] = useState<string>("");
 
-
-    const searchSimilarityGraph = () => {
-        if(target != null&&selectCommunities.length != 0){
-            const targetId = target.id;
-            const sourceId = selectCommunities.map((d:Community)=>{
-                return d.id.toString();
-            });
-            const max = selectCommunities.reduce((pre: Community, next: Community)=>{
-                return pre.node_num<next.node_num?next:pre;
-            }).node_num;
-            getSimilarityGraph({target:targetId.toString(),source:sourceId, max: max}).then((res)=>{
-                const data = res.data;
-                const {distance, rank} = data;
-                dispatch(setGraphRank({graphRank: rank}));
-                dispatch(setGraphDistance({graphDistance: distance}));
+    const okHandle = () => {
+        if(selectNode != undefined && currentCommunity != null && sliderData != 0){
+            getSimilarityNodes({nodes:[selectNode], community: currentCommunity.id, k: sliderData}).then(res=>{
+                const data: string[] = res.data;
+                const combineNodes: CombineNodes = {
+                    name: combineNodesName,
+                    nodeNum: data.length,
+                    community: currentCommunity.id,
+                    nodes: data
+                }
+                dispatch(setCombineNodes({combineNodes: combineNodes}));
+                dispatch(setCombineNodesList({combineNodesList: [...combineNodesList, combineNodes]}));
+                setIsModalOpen(false);
             });
         }
     }
 
+    // const searchSimilarityGraph = () => {
+    //     if(target != null&&selectCommunities.length != 0){
+    //         const targetId = target.id;
+    //         const sourceId = selectCommunities.map((d:Community)=>{
+    //             return d.id.toString();
+    //         });
+    //         const max = selectCommunities.reduce((pre: Community, next: Community)=>{
+    //             return pre.node_num<next.node_num?next:pre;
+    //         }).node_num;
+    //         getSimilarityGraph({target:targetId.toString(),source:sourceId, max: max}).then((res)=>{
+    //             const data = res.data;
+    //             const {distance, rank} = data;
+    //             dispatch(setGraphRank({graphRank: rank}));
+    //             dispatch(setGraphDistance({graphDistance: distance}));
+    //         });
+    //     }
+    // }
+
+    const searchSimilarityNodes = () => {
+        setIsModalOpen(true);
+    }
     // useEffect(()=>{
     //     console.log(selectCommunities);
     // },[selectCommunities])
@@ -80,10 +104,10 @@ const ControlPanel: React.FC<{}> = () => {
             </Row>
         </div>
         <div id='target-graph'>
-            <p className='control-title'>Target Graph</p>
-            <div className='graph-list' style={{height:"60%", padding:'0.2rem'}}>
-                {target===null?<></>:<GraphItem width={100} height={100} target={target} isTarget={true}/>}
-            </div>
+            <p className='control-title'>K Value</p>
+            <Slider min={1} max={
+                selectCommunities.length==0?100:selectCommunities[selectCommunities.length-1]["node_num"]
+            } onAfterChange={(value: number)=>{setSliderData(value);}}></Slider>
         </div>
         <div id='select-graph'>
             <p className='control-title'>Select Graph</p>
@@ -95,7 +119,10 @@ const ControlPanel: React.FC<{}> = () => {
                 }
             </div>
         </div>
-        <Button className='control-button' onClick={searchSimilarityGraph}>Search Similarity Graph</Button>
+        <Button className='control-button' onClick={searchSimilarityNodes}>Combine Similarity Nodes</Button>
+        <Modal title="Combine Name" open={isModalOpen} onCancel={()=>{setIsModalOpen(false)}} onOk={okHandle}>
+            <Input onChange={(e)=>{setCombineNodesName(e.target.value)}}></Input>
+        </Modal>
     </div>);
 };
 
