@@ -1,3 +1,4 @@
+import { SettingData } from '../components/@types/control-panel';
 import Axios from './axios';
 
 export const connectTest = () => {
@@ -31,7 +32,7 @@ export const getGraphsByCommunities = (params:{communities: number[]}) => {
     })
 }
 
-export const getSimilarityNodes = (params: {nodes:string[], community: number, k: number}) => {
+export const getSimilarityNodes = (params: {nodes:string[], community: number, k: number, modelCfg: SettingData}) => {
     return Axios({
         url: "/api/similarityNodes",
         method: "post",

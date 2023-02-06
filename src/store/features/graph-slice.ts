@@ -9,8 +9,8 @@ export interface graphState {
     subGraph:subGraphType|undefined,
     subGraphList: subGraphType[],
     selectNode: number|undefined,
-    combineNodes: CombineNodes[],
-    combineNodesList: CombineNodes[][]
+    combineNodes: CombineNodes|undefined,
+    combineNodesList: CombineNodes[]
 }
 
 const initialState: graphState = {
@@ -21,7 +21,7 @@ const initialState: graphState = {
     subGraph: undefined,
     subGraphList: [],
     selectNode: undefined,
-    combineNodes: [],
+    combineNodes: undefined,
     combineNodesList: []
 }
 
