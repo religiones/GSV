@@ -151,6 +151,7 @@ const GraphViewNew: React.FC<{}> = () => {
                 .attr("id", (d: any)=>d.id)
                 .attr("class", "nodes")
                 .on("click",function(e){
+                    console.log(e);
                     const data = e.target.__data__;
                     const nodeId = data["id"];
                     d3.selectAll(".nodes").attr("stroke","grey");
