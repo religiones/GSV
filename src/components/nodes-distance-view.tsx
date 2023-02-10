@@ -1,13 +1,17 @@
 import React, { createRef, LegacyRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Combine} from './@types/graph-view';
 import * as d3 from 'd3';
+import { setDeleteNodes } from '../store/features/graph-slice';
 
 const NodesDistanceView: React.FC<{}> = () => {
-    const {combineNodes} = useSelector((store:any) => store.graph);
+    const { combineNodes, deleteNodes } = useSelector((store:any) => store.graph);
+    const dispatch = useDispatch();
+
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const margin = 5;
     const barColor = "#68bb8c";
+
     useEffect(()=>{
         if(combineNodes != undefined){
             initGraph(combineNodes["combine"]);
@@ -71,9 +75,9 @@ const NodesDistanceView: React.FC<{}> = () => {
                             if(yList[0] <= top && bottom <= yList[1]
                                 ||yList[0] >= top && yList[0] <= bottom
                                 ||yList[1] >= top && yList[1] <= bottom){
-                                //  矩阵中线在刷取区间内
+                                //  矩阵中线在刷取区间内，更改选中样式并添加删除节点
                                 bar.classed("selected", true);
-
+                                dispatch(setDeleteNodes({deleteNodes: [...deleteNodes, d.label]}));
                             }
 
                     })

@@ -16,7 +16,7 @@ const GraphViewNew: React.FC<{}> = () => {
     const maxNodeSize = 10;
     const dispatch = useDispatch();
     const { currentCommunity } = useSelector((store: any)=>store.communityList);
-    const { combineNodes, selectNode } = useSelector((store: any)=>store.graph);
+    const { combineNodes, selectNode, deleteNodes } = useSelector((store: any)=>store.graph);
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const [graphData, setGraphData] = useState<any>(null);
     useEffect(()=>{
@@ -25,6 +25,14 @@ const GraphViewNew: React.FC<{}> = () => {
             initGraph(currentCommunity.id);
         }
     },[currentCommunity?.id]);
+
+    useEffect(()=>{
+        if(deleteNodes.length != 0){
+            deleteNodes.forEach((nodeId:string)=>{
+                d3.select(`#${nodeId}`).attr("stroke", "#099EDA");
+            });
+        }
+    },[deleteNodes]);
 
     useEffect(()=>{
         if(combineNodes != undefined){
