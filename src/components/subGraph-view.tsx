@@ -6,12 +6,16 @@ import SubGraphItem from './common/subGraph-item';
 import "./style/subgraph.less";
 
 const SubGraphView: React.FC<{}> = () => {
-    const {combineNodesList, combineNodes} = useSelector((store: any)=>store.graph);
+    const {combineNodesList, combineNodes, deleteNodes} = useSelector((store: any)=>store.graph);
 
     useEffect(()=>{
         console.log(combineNodesList);
         
     }, [combineNodesList])
+
+    useEffect(()=>{
+        
+    })
 
     return (
         <div style={{width:'100%', height:'100%', boxSizing:"border-box"}}>

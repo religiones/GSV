@@ -29,7 +29,7 @@ const GraphViewNew: React.FC<{}> = () => {
     useEffect(()=>{
         if(deleteNodes.length != 0){
             deleteNodes.forEach((nodeId:string)=>{
-                d3.select(`#${nodeId}`).attr("stroke", "#099EDA");
+                d3.select(`#${nodeId}`).attr("stroke", "grey");
             });
         }
     },[deleteNodes]);
