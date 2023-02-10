@@ -11,6 +11,7 @@ import ControlPanel from './components/control-panel';
 import GraphEmbedding from './components/graph-embedding';
 import GraphRankGallery from './components/graph-rank-gallery';
 import GraphViewNew from './components/graph-view-new';
+import NodesDistanceView from './components/nodes-distance-view';
 import SubGraphView from './components/subGraph-view';
 
 
@@ -24,7 +25,7 @@ function App() {
       children: [
         {
           type: 'row',
-          weight: 25,
+          weight: 28,
           children:[{
             type:'tabset',
             children:[
@@ -45,19 +46,30 @@ function App() {
           }]
         },{
           type: 'row',
-          weight: 75,
+          weight: 72,
           children:[{
             type: 'row',
             weight: 60,
             children:[
               {
                 type: 'tabset',
-                weight: 100,
+                weight: 77,
                 children:[
                   {
                     type:'tab',
                     name:"graph view",
                     component:"graph-view"
+                  }
+                ]
+              },
+              {
+                type: 'tabset',
+                weight: 23,
+                children:[
+                  {
+                    type:'tab',
+                    name:"nodes distance",
+                    component:"nodes-distance"
                   }
                 ]
               }
@@ -87,6 +99,8 @@ function App() {
         return <ControlPanel/>;
       case "graph-view":
         return <GraphViewNew/>;
+      case "nodes-distance":
+        return <NodesDistanceView/>;
       case "community-list":
         return <CommunityList/>;
       case "graph-embedding":

@@ -25,7 +25,10 @@ export type CombineNodes  = {
     name: string,
     nodeNum: number,
     community: number,
-    nodes: string[]
+    combine: {
+        nodes: string,
+        distance: number
+    }
 }
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;

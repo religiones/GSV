@@ -1,8 +1,6 @@
-import { Col, InputNumber, Radio, Row, Button, Slider, Modal, Select, Input, Form} from 'antd';
-import { log } from 'console';
-import React, { useEffect, useState } from 'react';
+import { Col, InputNumber, Radio, Row, Button, Slider, Modal, Select, Input } from 'antd';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSimilarityGraph } from '../api/control';
 import { getSimilarityNodes } from '../api/graph';
 import { setCombineNodes, setCombineNodesList } from '../store/features/graph-slice';
 import { Community } from './@types/communi-list';
@@ -32,12 +30,15 @@ const ControlPanel: React.FC<{}> = () => {
     const okHandle = () => {
         if(selectNode != undefined && currentCommunity != null && sliderData != 0){
             getSimilarityNodes({nodes:[selectNode], community: currentCommunity.id, k: sliderData, modelCfg: settingData}).then(res=>{
-                const data: string[] = res.data;
+                const {nodesId, distance} = res.data;
                 const combineNodes: CombineNodes = {
                     name: combineNodesName,
-                    nodeNum: data.length,
+                    nodeNum: nodesId.length,
                     community: currentCommunity.id,
-                    nodes: data,
+                    combine: {
+                        nodes: nodesId,
+                        distance: distance
+                    }
                 }
                 dispatch(setCombineNodes({combineNodes: combineNodes}));
                 dispatch(setCombineNodesList({combineNodesList: [...combineNodesList, combineNodes]}));
@@ -48,30 +49,9 @@ const ControlPanel: React.FC<{}> = () => {
         }
     }
 
-    // const searchSimilarityGraph = () => {
-    //     if(target != null&&selectCommunities.length != 0){
-    //         const targetId = target.id;
-    //         const sourceId = selectCommunities.map((d:Community)=>{
-    //             return d.id.toString();
-    //         });
-    //         const max = selectCommunities.reduce((pre: Community, next: Community)=>{
-    //             return pre.node_num<next.node_num?next:pre;
-    //         }).node_num;
-    //         getSimilarityGraph({target:targetId.toString(),source:sourceId, max: max}).then((res)=>{
-    //             const data = res.data;
-    //             const {distance, rank} = data;
-    //             dispatch(setGraphRank({graphRank: rank}));
-    //             dispatch(setGraphDistance({graphDistance: distance}));
-    //         });
-    //     }
-    // }
-
     const searchSimilarityNodes = () => {
         setIsModalOpen(true);
     }
-    // useEffect(()=>{
-    //     console.log(selectCommunities);
-    // },[selectCommunities])
 
     return (
     <div style={{width:'100%', height:'100%', padding:"0.5vw", boxSizing:"border-box"}}>

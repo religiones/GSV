@@ -5,7 +5,6 @@ import * as d3 from 'd3';
 import "./style/graph-view.less";
 import { Attrtion } from './@types/communi-list';
 import { setSelectNode } from '../store/features/graph-slice';
-import { log } from 'console';
 
 const GraphViewNew: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
@@ -29,7 +28,7 @@ const GraphViewNew: React.FC<{}> = () => {
 
     useEffect(()=>{
         if(combineNodes != undefined){
-            const nodesId = combineNodes["nodes"];
+            const nodesId = combineNodes["combine"]["nodes"];
             d3.selectAll(".nodes").attr("stroke","grey");
             const links = graphData["edges"];
             console.log(links);
