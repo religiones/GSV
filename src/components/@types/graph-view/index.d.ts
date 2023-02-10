@@ -1,4 +1,3 @@
-import { type } from "os"
 import { Attrtion } from "../communi-list"
 
 // type definitions for graph-view
@@ -35,3 +34,5 @@ export type CombineNodes  = {
 }
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;
+
+export type D3Selection = d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
