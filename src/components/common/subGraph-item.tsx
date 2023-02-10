@@ -1,15 +1,9 @@
 import { Button, Col, Row } from 'antd';
 import React from 'react';
+import { CombineNodes } from '../@types/graph-view';
 
-type SubGraphItemType = {
-    name: string,
-    nodeNum: number,
-    community: number,
-    nodes: string[]
-}
-
-const SubGraphItem: React.FC<SubGraphItemType> = (props) => {
-    const { name, nodeNum, community, nodes } = props;
+const SubGraphItem: React.FC<CombineNodes> = (props) => {
+    const { name, nodeNum, community, combine } = props;
 
     return (
         <div style={{width:'100%', height:'10%', borderBottom:"1px solid #ddd"}}>
@@ -22,7 +16,7 @@ const SubGraphItem: React.FC<SubGraphItemType> = (props) => {
                     <Button type="primary" danger> Delete </Button>
                 </Col>
             </Row>
-       </div>);
+    </div>);
 };
 
 export default SubGraphItem

@@ -1,3 +1,4 @@
+import { type } from "os"
 import { Attrtion } from "../communi-list"
 
 // type definitions for graph-view
@@ -21,14 +22,16 @@ export type subGraphType = {
     data: graphData
 }
 
+export type Combine = {
+    nodes: string[],
+    distance: number[]
+}
+
 export type CombineNodes  = {
     name: string,
     nodeNum: number,
     community: number,
-    combine: {
-        nodes: string,
-        distance: number
-    }
+    combine: Combine
 }
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;

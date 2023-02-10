@@ -8,9 +8,10 @@ export interface graphState {
     embeddingGraph: number|undefined,
     subGraph:subGraphType|undefined,
     subGraphList: subGraphType[],
-    selectNode: number|undefined,
+    selectNode: string|undefined,
     combineNodes: CombineNodes|undefined,
-    combineNodesList: CombineNodes[]
+    combineNodesList: CombineNodes[],
+    deleteNodes: string[]
 }
 
 const initialState: graphState = {
@@ -22,7 +23,8 @@ const initialState: graphState = {
     subGraphList: [],
     selectNode: undefined,
     combineNodes: undefined,
-    combineNodesList: []
+    combineNodesList: [],
+    deleteNodes: []
 }
 
 // create a slice
@@ -57,12 +59,16 @@ export const graphSlice = createSlice({
         },
         setCombineNodesList: (state: graphState, {payload}) => {
             state.combineNodesList = payload.combineNodesList;
+        },
+        setDeleteNodes: (state: graphState, {payload}) => {
+            state.deleteNodes = payload.deleteNodes;
         }
     }
 })
 // export actions
 export const {setGraphRank, setGraphDistance, setFocusGraphs, 
     setEmbeddingGraph, setSubGraph, setSubGraphList,
-    setSelectNode ,setCombineNodes, setCombineNodesList} = graphSlice.actions;
+    setSelectNode ,setCombineNodes, setCombineNodesList,
+    setDeleteNodes} = graphSlice.actions;
 
 export default graphSlice.reducer;

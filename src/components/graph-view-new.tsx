@@ -16,7 +16,7 @@ const GraphViewNew: React.FC<{}> = () => {
     const maxNodeSize = 10;
     const dispatch = useDispatch();
     const { currentCommunity } = useSelector((store: any)=>store.communityList);
-    const { combineNodes } = useSelector((store: any)=>store.graph);
+    const { combineNodes, selectNode } = useSelector((store: any)=>store.graph);
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const [graphData, setGraphData] = useState<any>(null);
     useEffect(()=>{
@@ -30,37 +30,40 @@ const GraphViewNew: React.FC<{}> = () => {
         if(combineNodes != undefined){
             const nodesId = combineNodes["combine"]["nodes"];
             d3.selectAll(".nodes").attr("stroke","grey");
-            const links = graphData["edges"];
-            console.log(links);
-            // compute source & target
-            let obj:any = {};
-            links.forEach((link:any)=>{
-                const source = link.source.id;
-                const target = link.target.id;
-                if(nodesId.includes(source)){
-                    if(!nodesId.includes(target)){
-                        const temp: {source:number, target: number} = {source: 0, target: 1};
-                        if(obj[target] == undefined){
-                            obj[target] = temp;
-                        }else{
-                            obj[target]["target"]++;
-                        }
-                    }
-                }
-                if(nodesId.includes(target)){
-                    if(!nodesId.includes(source)){
-                        const temp: {source:number, target: number} = {source: 1, target: 0};
-                        if(obj[source] == undefined){
-                            obj[source] = temp;
-                        }else{
-                            obj[source]["source"]++;
-                        }
-                    }
-                }
-            });
-            console.log(obj);
+            // const links = graphData["edges"];
+            // console.log(links);
+            // // compute source & target
+            // let obj:any = {};
+            // links.forEach((link:any)=>{
+            //     const source = link.source.id;
+            //     const target = link.target.id;
+            //     if(nodesId.includes(source)){
+            //         if(!nodesId.includes(target)){
+            //             const temp: {source:number, target: number} = {source: 0, target: 1};
+            //             if(obj[target] == undefined){
+            //                 obj[target] = temp;
+            //             }else{
+            //                 obj[target]["target"]++;
+            //             }
+            //         }
+            //     }
+            //     if(nodesId.includes(target)){
+            //         if(!nodesId.includes(source)){
+            //             const temp: {source:number, target: number} = {source: 1, target: 0};
+            //             if(obj[source] == undefined){
+            //                 obj[source] = temp;
+            //             }else{
+            //                 obj[source]["source"]++;
+            //             }
+            //         }
+            //     }
+            // });
             nodesId.forEach((nodes: string)=>{
-                d3.select(`#${nodes}`).attr("stroke","red");
+                if(selectNode != nodes){
+                    d3.select(`#${nodes}`).attr("stroke","red");
+                }else{
+                    d3.select(`#${nodes}`).attr("stroke","#301E67");
+                }
             });
 
 
@@ -73,8 +76,6 @@ const GraphViewNew: React.FC<{}> = () => {
         }).then(res=>{
             const data = res.data;
             setGraphData(data);
-            console.log(data);
-            
             const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
                 if(node["donutAttrs"] != undefined){
                     return node["donutAttrs"]
@@ -142,20 +143,18 @@ const GraphViewNew: React.FC<{}> = () => {
 
             const node = graphContainer.append('g')
                 .attr("stroke","grey")
-                .attr("stroke-opacity",0.3)
-                .attr("stroke-width", 3)
+                .attr("stroke-opacity",0.5)
+                .attr("stroke-width", 2)
                 .selectAll('g')
                 .data(data.nodes)
                 .join('g')
                 .attr("id", (d: any)=>d.id)
                 .attr("class", "nodes")
                 .on("click",function(e){
-                    console.log(e);
                     const data = e.target.__data__;
                     const nodeId = data["id"];
                     d3.selectAll(".nodes").attr("stroke","grey");
                     d3.select(this).attr("stroke","red");
-                    console.log(nodeId);
                     dispatch(setSelectNode({selectNode: nodeId}));
                 })
                 .call(
