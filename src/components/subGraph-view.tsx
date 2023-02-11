@@ -13,10 +13,6 @@ const SubGraphView: React.FC<{}> = () => {
         
     }, [combineNodesList])
 
-    useEffect(()=>{
-        
-    })
-
     return (
         <div style={{width:'100%', height:'100%', boxSizing:"border-box"}}>
             <Row style={{height:"10%", borderBottom:"1px solid #ddd"}}>

@@ -26,13 +26,13 @@ const GraphViewNew: React.FC<{}> = () => {
         }
     },[currentCommunity?.id]);
 
-    useEffect(()=>{
-        if(deleteNodes.length != 0){
-            deleteNodes.forEach((nodeId:string)=>{
-                d3.select(`#${nodeId}`).attr("stroke", "grey");
-            });
-        }
-    },[deleteNodes]);
+    // useEffect(()=>{
+    //     if(deleteNodes.length != 0){
+    //         deleteNodes.forEach((nodeId:string)=>{
+    //             d3.select(`#${nodeId}`).attr("stroke", "grey");
+    //         });
+    //     }
+    // },[deleteNodes]);
 
     useEffect(()=>{
         if(combineNodes != undefined){

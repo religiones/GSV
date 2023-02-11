@@ -1,4 +1,4 @@
-import React, { createRef, LegacyRef, useEffect } from 'react';
+import React, { createRef, LegacyRef, useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Combine} from './@types/graph-view';
 import * as d3 from 'd3';
@@ -7,18 +7,23 @@ import { setDeleteNodes } from '../store/features/graph-slice';
 const NodesDistanceView: React.FC<{}> = () => {
     const { combineNodes, deleteNodes } = useSelector((store:any) => store.graph);
     const dispatch = useDispatch();
-
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const margin = 5;
     const barColor = "#68bb8c";
 
+
+
     useEffect(()=>{
         if(combineNodes != undefined){
+            dispatch(setDeleteNodes({deleteNodes: []}));
             initGraph(combineNodes["combine"]);
         }
+        
     },[combineNodes]);
 
-    const initGraph = (combine:Combine) => {
+
+
+    const initGraph = useCallback((combine:Combine) => {
         if(graphRef.current != undefined){
             const svg = d3.select(graphRef.current);
             svg.selectChildren().remove();
@@ -60,11 +65,12 @@ const NodesDistanceView: React.FC<{}> = () => {
             // brush
             svg.append("g")
                 .attr("class", "brush")
-                .call(d3.brushY().on("brush", function(e){
+                .call(d3.brushY().on("end", function(e){
+                    dispatch(setDeleteNodes({deleteNodes: []}));
                     //  更改选取样式
                     d3.select(".selection")
                         .attr("fill","rgba(244,244,244,0.4)")
-
+                    let temp: string[] = []
                     const yList = e.selection;  // [y0, y1] 框选y轴大小值
                     d3.selectAll(".bar")
                         .classed("selected", false)
@@ -77,16 +83,16 @@ const NodesDistanceView: React.FC<{}> = () => {
                                 ||yList[1] >= top && yList[1] <= bottom){
                                 //  矩阵中线在刷取区间内，更改选中样式并添加删除节点
                                 bar.classed("selected", true);
-                                dispatch(setDeleteNodes({deleteNodes: [...deleteNodes, d.label]}));
+                                temp.push(d.label);
                             }
-
-                    })
+                    });
+                    dispatch(setDeleteNodes({deleteNodes: [...deleteNodes, ...temp]}));
                 }));
             
         }else{
             console.log("cannot get graph Ref");
         }
-    }
+    }, [combineNodes, deleteNodes])
 
     return (
         <div style={{width:'100%', height:'100%'}}>
