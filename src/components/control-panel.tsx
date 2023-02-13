@@ -12,9 +12,9 @@ import "./style/control-panle.less";
 const ControlPanel: React.FC<{}> = () => {
     const [settingData, setSettingData] = useState<SettingData>({
         training_algorithm: 'skip-gram',
-        optimize: 'hierachical softmax',
-        vector_size: 128,
-        window: 5,
+        optimize: 'neigative sampling',
+        p_parameter: 1,
+        q_parameter: 1,
         epoch: 3,
         similarity: "KNN"
     });
@@ -38,10 +38,12 @@ const ControlPanel: React.FC<{}> = () => {
                     combine: {
                         nodes: nodesId,
                         distance: distance
-                    }
+                    },
+                    isCombine: false
                 }
-                dispatch(setCombineNodes({combineNodes: combineNodes}));
+                // add new combineNodes
                 dispatch(setCombineNodesList({combineNodesList: [...combineNodesList, combineNodes]}));
+                dispatch(setCombineNodes({combineNodes: combineNodes}));
                 setIsModalOpen(false);
             });
         }else{
@@ -67,7 +69,7 @@ const ControlPanel: React.FC<{}> = () => {
                         });
                     }} ></Select>
                     <span className='control-title-small'>Optimize</span>
-                    <Select defaultValue={"hierachical softmax"} options={optimizeOption} size={"middle"} style={{width:150}} 
+                    <Select defaultValue={"neigative sampling"} options={optimizeOption} size={"middle"} style={{width:150}} 
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{optimize: v}}
@@ -77,18 +79,18 @@ const ControlPanel: React.FC<{}> = () => {
             </Row>
             <Row style={{marginBottom:"0.5vh"}}>
                 <Col span={24}>
-                    <span className='control-title-small'>vector_size</span>
-                    <InputNumber min={1} max={1024} defaultValue={128} style={{width:"3.5vw"}} 
+                    <span className='control-title-small'>p parameter</span>
+                    <InputNumber min={0} max={100} defaultValue={1} style={{width:"3.5vw"}} 
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
-                            return {...pre, ...{vector_size: v as number}}
+                            return {...pre, ...{p_parameter: v as number}}
                         });
                     }}></InputNumber>
-                    <span className='control-title-small'>window</span>
-                    <InputNumber min={1} max={100} defaultValue={5} style={{width:"3.5vw"}}
+                    <span className='control-title-small'>q parameter</span>
+                    <InputNumber min={0} max={100} defaultValue={1} style={{width:"3.5vw"}}
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
-                            return {...pre, ...{window: v as number}}
+                            return {...pre, ...{q_parameter: v as number}}
                         });
                     }}></InputNumber>
                     <span className='control-title-small'>epoch</span>

@@ -16,7 +16,7 @@ const GraphViewNew: React.FC<{}> = () => {
     const maxNodeSize = 10;
     const dispatch = useDispatch();
     const { currentCommunity } = useSelector((store: any)=>store.communityList);
-    const { combineNodes, selectNode, deleteNodes } = useSelector((store: any)=>store.graph);
+    const { combineNodes, selectNode, deleteNodes, isCombine } = useSelector((store: any)=>store.graph);
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const [graphData, setGraphData] = useState<any>(null);
     useEffect(()=>{
@@ -26,46 +26,53 @@ const GraphViewNew: React.FC<{}> = () => {
         }
     },[currentCommunity?.id]);
 
-    // useEffect(()=>{
-    //     if(deleteNodes.length != 0){
-    //         deleteNodes.forEach((nodeId:string)=>{
-    //             d3.select(`#${nodeId}`).attr("stroke", "grey");
-    //         });
-    //     }
-    // },[deleteNodes]);
+    useEffect(()=>{
+        if(isCombine["flag"] == true){
+            const links = graphData["edges"];
+            const nodesId = isCombine["target"]["nodes"];
+            console.log(links);
+            // compute source & target
+            let obj:any = {};
+            links.forEach((link:any)=>{
+                const source = link.source.id;
+                const target = link.target.id;
+                if(nodesId.includes(source)){
+                    if(!nodesId.includes(target)){
+                        const temp: {source:number, target: number} = {source: 0, target: 1};
+                        if(obj[target] == undefined){
+                            obj[target] = temp;
+                        }else{
+                            obj[target]["target"]++;
+                        }
+                    }
+                }
+                if(nodesId.includes(target)){
+                    if(!nodesId.includes(source)){
+                        const temp: {source:number, target: number} = {source: 1, target: 0};
+                        if(obj[source] == undefined){
+                            obj[source] = temp;
+                        }else{
+                            obj[source]["source"]++;
+                        }
+                    }
+                }
+            });
+            console.log(obj); 
+            for(const [nodeId, val] of Object.entries(obj)){
+                if(val as  {source:number, target: number} ["source"] != 0){
+                    // as source
+                    
+                }else{
+                    // as target
+                }
+            }
+        }
+    },[isCombine]);
 
     useEffect(()=>{
         if(combineNodes != undefined){
             const nodesId = combineNodes["combine"]["nodes"];
             d3.selectAll(".nodes").attr("stroke","grey");
-            // const links = graphData["edges"];
-            // console.log(links);
-            // // compute source & target
-            // let obj:any = {};
-            // links.forEach((link:any)=>{
-            //     const source = link.source.id;
-            //     const target = link.target.id;
-            //     if(nodesId.includes(source)){
-            //         if(!nodesId.includes(target)){
-            //             const temp: {source:number, target: number} = {source: 0, target: 1};
-            //             if(obj[target] == undefined){
-            //                 obj[target] = temp;
-            //             }else{
-            //                 obj[target]["target"]++;
-            //             }
-            //         }
-            //     }
-            //     if(nodesId.includes(target)){
-            //         if(!nodesId.includes(source)){
-            //             const temp: {source:number, target: number} = {source: 1, target: 0};
-            //             if(obj[source] == undefined){
-            //                 obj[source] = temp;
-            //             }else{
-            //                 obj[source]["source"]++;
-            //             }
-            //         }
-            //     }
-            // });
             nodesId.forEach((nodes: string)=>{
                 if(selectNode != nodes){
                     d3.select(`#${nodes}`).attr("stroke","red");
@@ -73,8 +80,6 @@ const GraphViewNew: React.FC<{}> = () => {
                     d3.select(`#${nodes}`).attr("stroke","#301E67");
                 }
             });
-
-
         }
     },[combineNodes])
 

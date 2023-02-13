@@ -30,7 +30,8 @@ export type CombineNodes  = {
     name: string,
     nodeNum: number,
     community: number,
-    combine: Combine
+    combine: Combine,
+    isCombine: boolean
 }
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;

@@ -1,18 +1,22 @@
 import { Button, Col, Row } from 'antd';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCombineNodes, setCombineNodesList } from '../../store/features/graph-slice';
+import { setCombineNodes, setCombineNodesList, setIsCombine } from '../../store/features/graph-slice';
 import { CombineNodes } from '../@types/graph-view';
 
-const SubGraphItem: React.FC<CombineNodes> = (props) => {
-    const { combineNodes, combineNodesList, deleteNodes } = useSelector((store: any)=>store.graph);
+type SubGraphItem = {
+    combineNodes: CombineNodes,
+}
+
+const SubGraphItem: React.FC<SubGraphItem> = (props) => {
+    const { combineNodesList, deleteNodes } = useSelector((store: any)=>store.graph);
+    const { combineNodes } = props;
+    const {name, community, nodeNum} = combineNodes;
     const dispatch = useDispatch();
-    const { name, nodeNum, community, combine } = props;
 
     const onNodesClick = () => {
-
+        dispatch(setIsCombine({isCombine:{flag:true,target:combineNodes["combine"]}}));
     }
-
     const onDeleteClick = () => {
         let nodes: string[] = [...combineNodes["combine"]["nodes"]];
         let distance: number[] = [...combineNodes["combine"]["distance"]];
@@ -26,7 +30,6 @@ const SubGraphItem: React.FC<CombineNodes> = (props) => {
         arr.splice(arr.indexOf(combineNodes), 1, {...combineNodes, nodeNum:nodes.length, combine:{nodes: nodes, distance: distance}});
         dispatch(setCombineNodesList({combineNodesList: arr}));
     }
-
     return (
         <div style={{width:'100%', height:'10%', borderBottom:"1px solid #ddd"}}>
             <Row style={{height:"100%"}}>

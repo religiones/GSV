@@ -22,7 +22,7 @@ const SubGraphView: React.FC<{}> = () => {
                 <Col span={8} className="subGraphTitle">Options</Col>
             </Row>
             {combineNodesList.length==0?<></>:combineNodesList.map((combine:CombineNodes, id: number)=>{
-                return (<SubGraphItem key={id} name={combine.name} nodeNum={combine.nodeNum} community={combine.community} combine={combine["combine"]} ></SubGraphItem>)
+                return (<SubGraphItem key={id} combineNodes={combine}></SubGraphItem>)
             })}
     </div>);
 };

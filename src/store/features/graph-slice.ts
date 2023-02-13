@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { subGraphType, CombineNodes } from "../../components/@types/graph-view";
+import { subGraphType, CombineNodes, Combine } from "../../components/@types/graph-view";
 
 export interface graphState {
     graphRank: number[],
@@ -11,7 +11,11 @@ export interface graphState {
     selectNode: string|undefined,
     combineNodes: CombineNodes|undefined,
     combineNodesList: CombineNodes[],
-    deleteNodes: string[]
+    deleteNodes: string[],
+    isCombine: {
+        flag: boolean,
+        target: Combine|undefined
+    }
 }
 
 const initialState: graphState = {
@@ -24,7 +28,11 @@ const initialState: graphState = {
     selectNode: undefined,
     combineNodes: undefined,
     combineNodesList: [],
-    deleteNodes: []
+    deleteNodes: [],
+    isCombine: {
+        flag: false,
+        target: undefined
+    }
 }
 
 // create a slice
@@ -62,13 +70,16 @@ export const graphSlice = createSlice({
         },
         setDeleteNodes: (state: graphState, {payload}) => {
             state.deleteNodes = payload.deleteNodes;
+        },
+        setIsCombine: (state: graphState, {payload}) => {
+            state.isCombine = payload.isCombine;
         }
     }
 })
 // export actions
 export const {setGraphRank, setGraphDistance, setFocusGraphs, 
     setEmbeddingGraph, setSubGraph, setSubGraphList,
-    setSelectNode ,setCombineNodes, setCombineNodesList,
-    setDeleteNodes} = graphSlice.actions;
+    setSelectNode, setCombineNodes, setCombineNodesList,
+    setDeleteNodes, setIsCombine} = graphSlice.actions;
 
 export default graphSlice.reducer;

@@ -1,8 +1,8 @@
 export interface SettingData {
     training_algorithm: string,
     optimize: string,
-    vector_size: number,
-    window: number,
+    p_parameter: number,
+    q_parameter: number,
     epoch: number,
     similarity: string
 }
