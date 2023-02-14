@@ -2,7 +2,7 @@ import { Col, InputNumber, Radio, Row, Button, Slider, Modal, Select, Input } fr
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSimilarityNodes } from '../api/graph';
-import { setCombineNodes, setCombineNodesList } from '../store/features/graph-slice';
+import { setCombineNodes, setCombineNodesList, setSelectNodes } from '../store/features/graph-slice';
 import { Community } from './@types/communi-list';
 import { SettingData } from './@types/control-panel';
 import { CombineNodes } from './@types/graph-view';
@@ -22,14 +22,14 @@ const ControlPanel: React.FC<{}> = () => {
     const algorithmOption = [{label:"skip-gram", value:"skip-gram"},{label:"CBOW", value:"CBOW"}];
     const optimizeOption = [{label:"hierachical softmax", value:"hierachical softmax"},{label:"neigative sampling", value:"neigative sampling"}];
     const { selectCommunities, currentCommunity } = useSelector((store: any) => store.communityList);
-    const { selectNode, combineNodesList } = useSelector((store: any) => store.graph);
+    const { selectNodes, combineNodesList } = useSelector((store: any) => store.graph);
     const [sliderData, setSliderData] = useState<number>(0);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [combineNodesName, setCombineNodesName] = useState<string>("");
 
     const okHandle = () => {
-        if(selectNode != undefined && currentCommunity != null && sliderData != 0){
-            getSimilarityNodes({nodes:[selectNode], community: currentCommunity.id, k: sliderData, modelCfg: settingData}).then(res=>{
+        if(selectNodes.length != 0 && currentCommunity != null && sliderData != 0){
+            getSimilarityNodes({nodes:selectNodes, community: currentCommunity.id, k: sliderData, modelCfg: settingData}).then(res=>{
                 const {nodesId, distance} = res.data;
                 const combineNodes: CombineNodes = {
                     name: combineNodesName,
@@ -47,7 +47,7 @@ const ControlPanel: React.FC<{}> = () => {
                 setIsModalOpen(false);
             });
         }else{
-            console.log(selectNode,currentCommunity,sliderData);
+            console.log(selectNodes,currentCommunity,sliderData);
         }
     }
 

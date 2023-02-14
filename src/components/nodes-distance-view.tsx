@@ -5,13 +5,11 @@ import * as d3 from 'd3';
 import { setDeleteNodes } from '../store/features/graph-slice';
 
 const NodesDistanceView: React.FC<{}> = () => {
-    const { combineNodes, deleteNodes } = useSelector((store:any) => store.graph);
+    const { combineNodes } = useSelector((store:any) => store.graph);
     const dispatch = useDispatch();
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const margin = 5;
     const barColor = "#68bb8c";
-
-
 
     useEffect(()=>{
         if(combineNodes != undefined){
@@ -86,13 +84,13 @@ const NodesDistanceView: React.FC<{}> = () => {
                                 temp.push(d.label);
                             }
                     });
-                    dispatch(setDeleteNodes({deleteNodes: [...deleteNodes, ...temp]}));
+                    dispatch(setDeleteNodes({deleteNodes: temp}));
                 }));
             
         }else{
             console.log("cannot get graph Ref");
         }
-    }, [combineNodes, deleteNodes])
+    }, [combineNodes])
 
     return (
         <div style={{width:'100%', height:'100%'}}>

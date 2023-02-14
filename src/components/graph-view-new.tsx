@@ -1,10 +1,11 @@
-import React, { createRef, LegacyRef, useEffect, useState } from 'react';
+import React, { createRef, LegacyRef, useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getGraphByCommunity } from '../api/graph';
 import * as d3 from 'd3';
 import "./style/graph-view.less";
 import { Attrtion } from './@types/communi-list';
-import { setSelectNode } from '../store/features/graph-slice';
+import { setSelectNodes } from '../store/features/graph-slice';
+import { Switch } from 'antd';
 
 const GraphViewNew: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
@@ -16,15 +17,26 @@ const GraphViewNew: React.FC<{}> = () => {
     const maxNodeSize = 10;
     const dispatch = useDispatch();
     const { currentCommunity } = useSelector((store: any)=>store.communityList);
-    const { combineNodes, selectNode, deleteNodes, isCombine } = useSelector((store: any)=>store.graph);
+    const { combineNodes, selectNodes, deleteNodes, isCombine } = useSelector((store: any)=>store.graph);
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
     const [graphData, setGraphData] = useState<any>(null);
+    const [isMultiple, setIsMultiple] = useState<boolean>(false);
+    const multipleRef = useRef<boolean>(isMultiple);
+    const selectNodesRef = useRef<Array<string>>(selectNodes);
     useEffect(()=>{
         // render graph
         if(currentCommunity != null){
             initGraph(currentCommunity.id);
         }
     },[currentCommunity?.id]);
+
+    useEffect(()=>{
+        multipleRef.current = isMultiple;
+    }, [isMultiple]);
+
+    useEffect(()=>{
+        selectNodesRef.current = selectNodes;
+    }, [selectNodes])
 
     useEffect(()=>{
         if(isCombine["flag"] == true){
@@ -74,7 +86,7 @@ const GraphViewNew: React.FC<{}> = () => {
             const nodesId = combineNodes["combine"]["nodes"];
             d3.selectAll(".nodes").attr("stroke","grey");
             nodesId.forEach((nodes: string)=>{
-                if(selectNode != nodes){
+                if(!selectNodesRef.current.includes(nodes)){
                     d3.select(`#${nodes}`).attr("stroke","red");
                 }else{
                     d3.select(`#${nodes}`).attr("stroke","#301E67");
@@ -83,181 +95,197 @@ const GraphViewNew: React.FC<{}> = () => {
         }
     },[combineNodes])
 
-    const initGraph = (id:number) => {
+    const initGraph = useCallback((id:number) => {
         getGraphByCommunity({
             community: id
         }).then(res=>{
             const data = res.data;
             setGraphData(data);
-            const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
-                if(node["donutAttrs"] != undefined){
-                    return node["donutAttrs"]
-                }else{
-                    return {    
-                        porn: 0,
-                        gambling: 0,
-                        fraud: 0,
-                        drug: 0,
-                        gun: 0,
-                        hacker: 0,
-                        trading: 0,
-                        pay: 0
-                    };
-                }
-            });
-            const min: number = 0;
-            const max: number = d3.max(attrList.map((attr:Attrtion)=>d3.sum(Object.values(attr)))) as number;
-            const radiusScale = d3.scaleLinear().domain([min, max]).range([minNodeSize, maxNodeSize]);
-            const zoom = d3.zoom().scaleExtent([-8, 8]).on('zoom', function (current){
-                zoomed(current.transform);
-                current.sourceEvent.stopPropagation();
-            }).on("start", function (event) {
-                event.sourceEvent.stopPropagation();
-            }).on("end", function (event) {
-                event.sourceEvent.stopPropagation();
-            });
-
-            const svg = d3.select(graphRef.current);
-            svg.selectChildren().remove();
-            const graphContainer = svg.append("g");
-            //@ts-ignore
-            svg.call(zoom);
-            const container = document.getElementById("graph-container");
-            const width = container?.clientWidth as number;
-            const height = container?.clientHeight as number;
-            // svg.attr("viewBox",`${-width/2} ${-height*0.5} ${width} ${height}`);
-            // define arrow
-            svg.append('defs').append('marker')
-            .attr("id",'arrowhead')
-            .attr('viewBox','-0 -5 10 10')
-            .attr('refX',15) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
-            .attr('refY',-0.5)
-            .attr('orient','auto')
-            .attr('markerWidth',6)
-            .attr('markerHeight',6)
-            .attr('xoverflow','visible')
-            .append('path')
-            .attr('d', "M0,-5L10,0L0,5")
-            .attr('fill', '#999')
-            .style('stroke','none');
-
-            const simulation = d3.forceSimulation()
-                .force("link",d3.forceLink().id(function(d:any){return d.id;}))
-                .force("charge",d3.forceManyBody())
-                .force("center",d3.forceCenter(width/2, height/2));
-            const link = graphContainer.append("g")
-                .attr("class","links")
-                .selectAll("line")
-                .data(data.edges)
-                .enter()
-                .append("line")
-                .attr("stroke",edgeColor)
-                .attr('marker-end','url(#arrowhead)');
-
-            const node = graphContainer.append('g')
-                .attr("stroke","grey")
-                .attr("stroke-opacity",0.5)
-                .attr("stroke-width", 2)
-                .selectAll('g')
-                .data(data.nodes)
-                .join('g')
-                .attr("id", (d: any)=>d.id)
-                .attr("class", "nodes")
-                .on("click",function(e){
-                    const data = e.target.__data__;
-                    const nodeId = data["id"];
-                    d3.selectAll(".nodes").attr("stroke","grey");
-                    d3.select(this).attr("stroke","red");
-                    dispatch(setSelectNode({selectNode: nodeId}));
-                })
-                .call(
+            if(graphRef.current != null){
+                const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
+                    if(node["donutAttrs"] != undefined){
+                        return node["donutAttrs"]
+                    }else{
+                        return {    
+                            porn: 0,
+                            gambling: 0,
+                            fraud: 0,
+                            drug: 0,
+                            gun: 0,
+                            hacker: 0,
+                            trading: 0,
+                            pay: 0
+                        };
+                    }
+                });
+                const min: number = 0;
+                const max: number = d3.max(attrList.map((attr:Attrtion)=>d3.sum(Object.values(attr)))) as number;
+                const radiusScale = d3.scaleLinear().domain([min, max]).range([minNodeSize, maxNodeSize]);
+                const zoom = d3.zoom().scaleExtent([-8, 8]).on('zoom', function (current){
+                    zoomed(current.transform);
+                    current.sourceEvent.stopPropagation();
+                }).on("start", function (event) {
+                    event.sourceEvent.stopPropagation();
+                }).on("end", function (event) {
+                    event.sourceEvent.stopPropagation();
+                });
+                const svg = d3.select(graphRef.current);
+                svg.selectChildren().remove();
+                const graphContainer = svg.append("g");
                 //@ts-ignore
-                d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
-            
-            // 绘制节点
-            const cir = node.append('circle')
-                    .attr("r", (d: any)=>{
-                        if(d["donutAttrs"]!=undefined){
-                            return radiusScale(d3.sum(Object.values(d["donutAttrs"])));
+                svg.call(zoom);
+                const container = document.getElementById("graph-container");
+                const width = container?.clientWidth as number;
+                const height = container?.clientHeight as number;
+                // svg.attr("viewBox",`${-width/2} ${-height*0.5} ${width} ${height}`);
+                // define arrow
+                svg.append('defs').append('marker')
+                .attr("id",'arrowhead')
+                .attr('viewBox','-0 -5 10 10')
+                .attr('refX',15) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+                .attr('refY',-0.5)
+                .attr('orient','auto')
+                .attr('markerWidth',6)
+                .attr('markerHeight',6)
+                .attr('xoverflow','visible')
+                .append('path')
+                .attr('d', "M0,-5L10,0L0,5")
+                .attr('fill', '#999')
+                .style('stroke','none');
+    
+                const simulation = d3.forceSimulation()
+                    .force("link",d3.forceLink().id(function(d:any){return d.id;}))
+                    .force("charge",d3.forceManyBody())
+                    .force("center",d3.forceCenter(width/2, height/2));
+                const link = graphContainer.append("g")
+                    .attr("class","links")
+                    .selectAll("line")
+                    .data(data.edges)
+                    .enter()
+                    .append("line")
+                    .attr("stroke",edgeColor)
+                    .attr('marker-end','url(#arrowhead)');
+    
+                const node = graphContainer.append('g')
+                    .attr("stroke","grey")
+                    .attr("stroke-opacity",0.5)
+                    .attr("stroke-width", 2)
+                    .selectAll('g')
+                    .data(data.nodes)
+                    .join('g')
+                    .attr("id", (d: any)=>d.id)
+                    .attr("class", "nodes")
+                    .on("click",function(e){
+                        const data = e.target.__data__;
+                        const nodeId = data["id"];
+                        if(multipleRef.current == false){
+                            d3.selectAll(".nodes").attr("stroke","grey");
+                            dispatch(setSelectNodes({selectNodes: [nodeId]}));
                         }else{
-                            return minNodeSize;
+                            dispatch(setSelectNodes({selectNodes: [...selectNodesRef.current, nodeId]}));
                         }
+                        d3.select(this).attr("stroke","red");
                         
                     })
-                    .attr("fill",(d:any)=>{
-                        if(d.nodeType == "Domain"){
-                            return "#68bb8c"
-                        }else if(d.nodeType == "Cert"){
-                            return "#3F3B6C"
-                        }else{
-                            return "#CF0A0A"
+                    .call(
+                    //@ts-ignore
+                    d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+                
+                // 绘制节点
+                const cir = node.append('circle')
+                        .attr("r", (d: any)=>{
+                            if(d["donutAttrs"]!=undefined){
+                                return radiusScale(d3.sum(Object.values(d["donutAttrs"])));
+                            }else{
+                                return minNodeSize;
+                            }
+                            
+                        })
+                        .attr("fill",(d:any)=>{
+                            if(d.nodeType == "Domain"){
+                                return "#68bb8c"
+                            }else if(d.nodeType == "Cert"){
+                                return "#3F3B6C"
+                            }else{
+                                return "#CF0A0A"
+                            }
+                        });
+                // 绘制环图
+                const arc = d3.arc().innerRadius((d:any)=>{return maxNodeSize;})
+                    .outerRadius(maxNodeSize*1.4)
+                const angle = d3.pie();
+                const cycle = node.append("g").attr("class","cycle");
+                
+                d3.selectAll(".cycle").each(function(d:any){
+                    if(d["donutAttrs"] != undefined){
+                        if(d3.sum(Object.values(d["donutAttrs"])) != 0){
+                            d3.select(this).selectAll("path").data(angle(Object.values(d["donutAttrs"])))
+                            .join("path")
+                            .attr("class","cycle-path")
+                            .attr("d", (d: any)=>arc(d))
+                            .attr("fill",(d: any, index: number)=>{return colorArray[index-1];});
                         }
-                    });
-            // 绘制环图
-            const arc = d3.arc().innerRadius((d:any)=>{return maxNodeSize;})
-                .outerRadius(maxNodeSize*1.4)
-            const angle = d3.pie();
-            const cycle = node.append("g").attr("class","cycle");
-            
-            d3.selectAll(".cycle").each(function(d:any){
-                if(d["donutAttrs"] != undefined){
-                    if(d3.sum(Object.values(d["donutAttrs"])) != 0){
-                        d3.select(this).selectAll("path").data(angle(Object.values(d["donutAttrs"])))
-                        .join("path")
-                        .attr("class","cycle-path")
-                        .attr("d", (d: any)=>arc(d))
-                        .attr("fill",(d: any, index: number)=>{return colorArray[index-1];});
+                    }else{
+                        d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
                     }
-                }else{
-                    d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
+                });
+                        
+                simulation.nodes(data.nodes).on("tick", ticked);      
+                // @ts-ignore    
+                simulation.force("link")?.links(data.edges);
+                function ticked() {
+                    link.attr("x1", function(d:any) { return d.source.x; })
+                        .attr("y1", function(d:any) { return d.source.y; })
+                        .attr("x2", function(d:any) { return d.target.x; })
+                        .attr("y2", function(d:any) { return d.target.y; });
+                    cir.attr("cx", function(d:any) { return d.x; })
+                        .attr("cy", function(d:any) { return d.y; });
+                    cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
                 }
-            });
-                    
-            simulation.nodes(data.nodes).on("tick", ticked);      
-            // @ts-ignore    
-            simulation.force("link")?.links(data.edges);
-            function ticked() {
-                link.attr("x1", function(d:any) { return d.source.x; })
-                    .attr("y1", function(d:any) { return d.source.y; })
-                    .attr("x2", function(d:any) { return d.target.x; })
-                    .attr("y2", function(d:any) { return d.target.y; });
-                cir.attr("cx", function(d:any) { return d.x; })
-                    .attr("cy", function(d:any) { return d.y; });
-                cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
+                function dragstarted(d:any) {
+                    if (!d.active) simulation.alphaTarget(0.3).restart();
+                    d.subject.fx = d.x;
+                    d.subject.fy = d.y;
+                    d.sourceEvent.stopPropagation();
+                }
+                
+                function dragged(d:any) {
+                    d.subject.fx = d.x;
+                    d.subject.fy = d.y;
+                    d.sourceEvent.stopPropagation();
+                }
+                
+                function dragended(d:any) {
+                    if (!d.active) simulation.alphaTarget(0);
+                    d.subject.fx = null;
+                    d.subject.fy = null;
+                    d.sourceEvent.stopPropagation();
+                }
+    
+                function zoomed(transform: any) {
+                    graphContainer.style('transition', 'none')
+                    graphContainer.attr('transform', `translate(${transform.x},${transform.y}) scale(${transform.k})`
+                )}
+            }else{
+                console.log("connot get graph ref");
             }
-            function dragstarted(d:any) {
-                if (!d.active) simulation.alphaTarget(0.3).restart();
-                d.subject.fx = d.x;
-                d.subject.fy = d.y;
-                d.sourceEvent.stopPropagation();
-            }
-            
-            function dragged(d:any) {
-                d.subject.fx = d.x;
-                d.subject.fy = d.y;
-                d.sourceEvent.stopPropagation();
-            }
-            
-            function dragended(d:any) {
-                if (!d.active) simulation.alphaTarget(0);
-                d.subject.fx = null;
-                d.subject.fy = null;
-                d.sourceEvent.stopPropagation();
-            }
-
-            function zoomed(transform: any) {
-                graphContainer.style('transition', 'none')
-                graphContainer.attr('transform', `translate(${transform.x},${transform.y}) scale(${transform.k})`
-            )}
         });
-    }
+    },[graphRef,selectNodes])
 
     return (
         <div className='graph-wrap'>
             <span id='graph-title'>{`community: ${currentCommunity===null?'null':currentCommunity.id}`}</span>
+            <div id="button-group">
+                <label className='label'>multiple select</label>
+                <Switch style={{marginLeft:"4%"}} onChange={()=>{
+                    d3.selectAll(".nodes").attr("stroke","grey");
+                    dispatch(setSelectNodes({selectNodes: []}));
+                    setIsMultiple((pre:boolean)=>!pre);
+                }}/>
+            </div>
             <svg ref={graphRef} id='graph-container' style={{width:'100%', height:'100%'}}></svg>
        </div>);
 };
