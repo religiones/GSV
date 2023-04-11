@@ -9,9 +9,10 @@ import './App.less';
 import CommunityList from './components/community-list';
 import ControlPanel from './components/control-panel';
 import GraphEmbedding from './components/graph-embedding';
-import GraphInformation from './components/graph-information';
-import GraphNeighbor from './components/graph-neighbor';
-import GraphView from './components/graph-view';
+import GraphRankGallery from './components/graph-rank-gallery';
+import GraphViewNew from './components/graph-view-new';
+import NodesDistanceView from './components/nodes-distance-view';
+import SubGraphView from './components/subGraph-view';
 
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
       children: [
         {
           type: 'row',
-          weight: 20,
+          weight: 28,
           children:[{
             type:'tabset',
             children:[
@@ -36,44 +37,39 @@ function App() {
             ]
           },{
             type:'tabset',
-            children:[
-              {
+            children:[{
                 type:'tab',
-                name:"graph view",
-                component:"graph-view"
-              },{
-                type:'tab',
-                name:"graph neighbor",
-                component:"graph-neighbor"
+                name:"subGraph View",
+                component:"subGraph-view"
               }
             ]
           }]
         },{
           type: 'row',
-          weight: 80,
+          weight: 72,
           children:[{
             type: 'row',
             weight: 60,
             children:[
               {
                 type: 'tabset',
-                weight: 80,
+                weight: 77,
                 children:[
                   {
-                    type: 'tab',
-                    name: "community list",
-                    component:"community-list"
+                    type:'tab',
+                    name:"graph view",
+                    component:"graph-view"
                   }
                 ]
               },
               {
                 type: 'tabset',
-                weight: 20,
+                weight: 23,
                 children:[
                   {
-                    type: 'tab',
-                    name: "graph embedding",
-                    component:"graph-embedding"
+                    type:'tab',
+                    name:"nodes distance",
+                    component:"nodes-distance"
                   }
                 ]
               }
@@ -85,9 +81,9 @@ function App() {
             children:[
               {
                 type: 'tab',
-                name: "graph information",
-                component:"graph-information"
-              }
+                name: "community list",
+                component:"community-list"
+              },
             ]
           }
           ]
@@ -102,15 +98,17 @@ function App() {
       case "control-panel":
         return <ControlPanel/>;
       case "graph-view":
-        return <GraphView/>;
+        return <GraphViewNew/>;
+      case "nodes-distance":
+        return <NodesDistanceView/>;
       case "community-list":
         return <CommunityList/>;
-      case "graph-information":
-        return <GraphInformation/>;
       case "graph-embedding":
         return <GraphEmbedding/>;
-      case "graph-neighbor":
-        return <GraphNeighbor/>;
+      case "subGraph-view":
+        return <SubGraphView/>;
+      case "graph-rank-gallery":
+        return <GraphRankGallery/>;
       default:
         return <></>
     }

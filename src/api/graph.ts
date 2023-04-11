@@ -1,3 +1,4 @@
+import { SettingData } from '../components/@types/control-panel';
 import Axios from './axios';
 
 export const connectTest = () => {
@@ -7,9 +8,33 @@ export const connectTest = () => {
     })
 }
 
-export const getGraphByCommunity = (params:{community: string}) => {
+export const getGraphByCommunity = (params:{community: number}) => {
     return Axios({
         url: "/api/graph",
+        method: "post",
+        data: params
+    })
+}
+
+export const getGraphEmbeddingByCommunity = (params:{community: number}) => {
+    return Axios({
+        url: "/api/graphEmbedding",
+        method: "post",
+        data: params
+    })
+}
+
+export const getGraphsByCommunities = (params:{communities: number[]}) => {
+    return Axios({
+        url: "/api/graphs",
+        method: "post",
+        data: params
+    })
+}
+
+export const getSimilarityNodes = (params: {nodes:string[], community: number, k: number, modelCfg: SettingData}) => {
+    return Axios({
+        url: "/api/similarityNodes",
         method: "post",
         data: params
     })
