@@ -26,7 +26,12 @@ const GraphViewNew: React.FC<{}> = () => {
     useEffect(()=>{
         // render graph
         if(currentCommunity != null){
-            initGraph(currentCommunity.id);
+            getGraphByCommunity({community: currentCommunity.id}).then(res=>{
+                const data = res.data;
+                setGraphData(data);
+                initGraph(data);
+            });
+
         }
     },[currentCommunity?.id]);
 
@@ -40,44 +45,33 @@ const GraphViewNew: React.FC<{}> = () => {
 
     useEffect(()=>{
         if(isCombine["flag"] == true){
-            const links = graphData["edges"];
+            const links: any[] = [...graphData["edges"]];
+            const nodes: any[] = [...graphData["nodes"]];
             const nodesId = isCombine["target"]["nodes"];
-            console.log(links);
             // compute source & target
-            let obj:any = {};
+            let similarityLinks: any[] = [];
+            let similarityNodes: any[] = [];
             links.forEach((link:any)=>{
                 const source = link.source.id;
                 const target = link.target.id;
-                if(nodesId.includes(source)){
-                    if(!nodesId.includes(target)){
-                        const temp: {source:number, target: number} = {source: 0, target: 1};
-                        if(obj[target] == undefined){
-                            obj[target] = temp;
-                        }else{
-                            obj[target]["target"]++;
-                        }
-                    }
-                }
-                if(nodesId.includes(target)){
-                    if(!nodesId.includes(source)){
-                        const temp: {source:number, target: number} = {source: 1, target: 0};
-                        if(obj[source] == undefined){
-                            obj[source] = temp;
-                        }else{
-                            obj[source]["source"]++;
-                        }
-                    }
+                if(nodesId.includes(source) || nodesId.includes(target)){
+                    similarityLinks.push(link);
                 }
             });
-            console.log(obj); 
-            for(const [nodeId, val] of Object.entries(obj)){
-                if(val as  {source:number, target: number} ["source"] != 0){
-                    // as source
-                    
-                }else{
-                    // as target
+            nodes.forEach((node: any)=>{
+                if(nodesId.includes(node.id)){
+                    similarityNodes.push(node);
                 }
-            }
+            });
+            // data clean
+            similarityLinks.forEach((link:any)=>{
+                links.splice(links.indexOf(link), 1);
+            });
+            similarityNodes.forEach((node:any)=>{
+                nodes.splice(nodes.indexOf(node), 1);
+            });
+            // add virtual node & edge
+            initGraph({nodes: similarityNodes, edges: similarityLinks});
         }
     },[isCombine]);
 
@@ -95,185 +89,179 @@ const GraphViewNew: React.FC<{}> = () => {
         }
     },[combineNodes])
 
-    const initGraph = useCallback((id:number) => {
-        getGraphByCommunity({
-            community: id
-        }).then(res=>{
-            const data = res.data;
-            setGraphData(data);
-            if(graphRef.current != null){
-                const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
-                    if(node["donutAttrs"] != undefined){
-                        return node["donutAttrs"]
+    const initGraph = useCallback((data: any) => {
+        if(graphRef.current != null){
+            const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
+                if(node["donutAttrs"] != undefined){
+                    return node["donutAttrs"]
+                }else{
+                    return {    
+                        porn: 0,
+                        gambling: 0,
+                        fraud: 0,
+                        drug: 0,
+                        gun: 0,
+                        hacker: 0,
+                        trading: 0,
+                        pay: 0
+                    };
+                }
+            });
+            const min: number = 0;
+            const max: number = d3.max(attrList.map((attr:Attrtion)=>d3.sum(Object.values(attr)))) as number;
+            const radiusScale = d3.scaleLinear().domain([min, max]).range([minNodeSize, maxNodeSize]);
+            const zoom = d3.zoom().scaleExtent([-8, 8]).on('zoom', function (current){
+                zoomed(current.transform);
+                current.sourceEvent.stopPropagation();
+            }).on("start", function (event) {
+                event.sourceEvent.stopPropagation();
+            }).on("end", function (event) {
+                event.sourceEvent.stopPropagation();
+            });
+            const svg = d3.select(graphRef.current);
+            svg.selectChildren().remove();
+            const graphContainer = svg.append("g");
+            //@ts-ignore
+            svg.call(zoom);
+            const container = document.getElementById("graph-container");
+            const width = container?.clientWidth as number;
+            const height = container?.clientHeight as number;
+            // svg.attr("viewBox",`${-width/2} ${-height*0.5} ${width} ${height}`);
+            // define arrow
+            svg.append('defs').append('marker')
+            .attr("id",'arrowhead')
+            .attr('viewBox','-0 -5 10 10')
+            .attr('refX',15) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+            .attr('refY',-0.5)
+            .attr('orient','auto')
+            .attr('markerWidth',6)
+            .attr('markerHeight',6)
+            .attr('xoverflow','visible')
+            .append('path')
+            .attr('d', "M0,-5L10,0L0,5")
+            .attr('fill', '#999')
+            .style('stroke','none');
+
+            const simulation = d3.forceSimulation()
+                .force("link",d3.forceLink().id(function(d:any){return d.id;}))
+                .force("charge",d3.forceManyBody())
+                .force("center",d3.forceCenter(width/2, height/2));
+            const link = graphContainer.append("g")
+                .attr("class","links")
+                .selectAll("line")
+                .data(data.edges)
+                .enter()
+                .append("line")
+                .attr("stroke",edgeColor)
+                .attr('marker-end','url(#arrowhead)');
+
+            const node = graphContainer.append('g')
+                .attr("stroke","grey")
+                .attr("stroke-opacity",0.5)
+                .attr("stroke-width", 2)
+                .selectAll('g')
+                .data(data.nodes)
+                .join('g')
+                .attr("id", (d: any)=>d.id)
+                .attr("class", "nodes")
+                .on("click",function(e){
+                    const data = e.target.__data__;
+                    const nodeId = data["id"];
+                    if(multipleRef.current == false){
+                        d3.selectAll(".nodes").attr("stroke","grey");
+                        dispatch(setSelectNodes({selectNodes: [nodeId]}));
                     }else{
-                        return {    
-                            porn: 0,
-                            gambling: 0,
-                            fraud: 0,
-                            drug: 0,
-                            gun: 0,
-                            hacker: 0,
-                            trading: 0,
-                            pay: 0
-                        };
+                        dispatch(setSelectNodes({selectNodes: [...selectNodesRef.current, nodeId]}));
                     }
-                });
-                const min: number = 0;
-                const max: number = d3.max(attrList.map((attr:Attrtion)=>d3.sum(Object.values(attr)))) as number;
-                const radiusScale = d3.scaleLinear().domain([min, max]).range([minNodeSize, maxNodeSize]);
-                const zoom = d3.zoom().scaleExtent([-8, 8]).on('zoom', function (current){
-                    zoomed(current.transform);
-                    current.sourceEvent.stopPropagation();
-                }).on("start", function (event) {
-                    event.sourceEvent.stopPropagation();
-                }).on("end", function (event) {
-                    event.sourceEvent.stopPropagation();
-                });
-                const svg = d3.select(graphRef.current);
-                svg.selectChildren().remove();
-                const graphContainer = svg.append("g");
+                    d3.select(this).attr("stroke","red");
+                    
+                })
+                .call(
                 //@ts-ignore
-                svg.call(zoom);
-                const container = document.getElementById("graph-container");
-                const width = container?.clientWidth as number;
-                const height = container?.clientHeight as number;
-                // svg.attr("viewBox",`${-width/2} ${-height*0.5} ${width} ${height}`);
-                // define arrow
-                svg.append('defs').append('marker')
-                .attr("id",'arrowhead')
-                .attr('viewBox','-0 -5 10 10')
-                .attr('refX',15) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
-                .attr('refY',-0.5)
-                .attr('orient','auto')
-                .attr('markerWidth',6)
-                .attr('markerHeight',6)
-                .attr('xoverflow','visible')
-                .append('path')
-                .attr('d', "M0,-5L10,0L0,5")
-                .attr('fill', '#999')
-                .style('stroke','none');
-    
-                const simulation = d3.forceSimulation()
-                    .force("link",d3.forceLink().id(function(d:any){return d.id;}))
-                    .force("charge",d3.forceManyBody())
-                    .force("center",d3.forceCenter(width/2, height/2));
-                const link = graphContainer.append("g")
-                    .attr("class","links")
-                    .selectAll("line")
-                    .data(data.edges)
-                    .enter()
-                    .append("line")
-                    .attr("stroke",edgeColor)
-                    .attr('marker-end','url(#arrowhead)');
-    
-                const node = graphContainer.append('g')
-                    .attr("stroke","grey")
-                    .attr("stroke-opacity",0.5)
-                    .attr("stroke-width", 2)
-                    .selectAll('g')
-                    .data(data.nodes)
-                    .join('g')
-                    .attr("id", (d: any)=>d.id)
-                    .attr("class", "nodes")
-                    .on("click",function(e){
-                        const data = e.target.__data__;
-                        const nodeId = data["id"];
-                        if(multipleRef.current == false){
-                            d3.selectAll(".nodes").attr("stroke","grey");
-                            dispatch(setSelectNodes({selectNodes: [nodeId]}));
+                d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+            
+            // 绘制节点
+            const cir = node.append('circle')
+                    .attr("r", (d: any)=>{
+                        if(d["donutAttrs"]!=undefined){
+                            return radiusScale(d3.sum(Object.values(d["donutAttrs"])));
                         }else{
-                            dispatch(setSelectNodes({selectNodes: [...selectNodesRef.current, nodeId]}));
+                            return minNodeSize;
                         }
-                        d3.select(this).attr("stroke","red");
                         
                     })
-                    .call(
-                    //@ts-ignore
-                    d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended));
-                
-                // 绘制节点
-                const cir = node.append('circle')
-                        .attr("r", (d: any)=>{
-                            if(d["donutAttrs"]!=undefined){
-                                return radiusScale(d3.sum(Object.values(d["donutAttrs"])));
-                            }else{
-                                return minNodeSize;
-                            }
-                            
-                        })
-                        .attr("fill",(d:any)=>{
-                            if(d.nodeType == "Domain"){
-                                return "#68bb8c"
-                            }else if(d.nodeType == "Cert"){
-                                return "#3F3B6C"
-                            }else{
-                                return "#CF0A0A"
-                            }
-                        });
-                // 绘制环图
-                const arc = d3.arc().innerRadius((d:any)=>{return maxNodeSize;})
-                    .outerRadius(maxNodeSize*1.4)
-                const angle = d3.pie();
-                const cycle = node.append("g").attr("class","cycle");
-                
-                d3.selectAll(".cycle").each(function(d:any){
-                    if(d["donutAttrs"] != undefined){
-                        if(d3.sum(Object.values(d["donutAttrs"])) != 0){
-                            d3.select(this).selectAll("path").data(angle(Object.values(d["donutAttrs"])))
-                            .join("path")
-                            .attr("class","cycle-path")
-                            .attr("d", (d: any)=>arc(d))
-                            .attr("fill",(d: any, index: number)=>{return colorArray[index-1];});
+                    .attr("fill",(d:any)=>{
+                        if(d.nodeType == "Domain"){
+                            return "#68bb8c"
+                        }else if(d.nodeType == "Cert"){
+                            return "#3F3B6C"
+                        }else{
+                            return "#CF0A0A"
                         }
-                    }else{
-                        d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
+                    });
+            // 绘制环图
+            const arc = d3.arc().innerRadius((d:any)=>{return maxNodeSize;})
+                .outerRadius(maxNodeSize*1.4)
+            const angle = d3.pie();
+            const cycle = node.append("g").attr("class","cycle");
+            
+            d3.selectAll(".cycle").each(function(d:any){
+                if(d["donutAttrs"] != undefined){
+                    if(d3.sum(Object.values(d["donutAttrs"])) != 0){
+                        d3.select(this).selectAll("path").data(angle(Object.values(d["donutAttrs"])))
+                        .join("path")
+                        .attr("class","cycle-path")
+                        .attr("d", (d: any)=>arc(d))
+                        .attr("fill",(d: any, index: number)=>{return colorArray[index-1];});
                     }
-                });
-                        
-                simulation.nodes(data.nodes).on("tick", ticked);      
-                // @ts-ignore    
-                simulation.force("link")?.links(data.edges);
-                function ticked() {
-                    link.attr("x1", function(d:any) { return d.source.x; })
-                        .attr("y1", function(d:any) { return d.source.y; })
-                        .attr("x2", function(d:any) { return d.target.x; })
-                        .attr("y2", function(d:any) { return d.target.y; });
-                    cir.attr("cx", function(d:any) { return d.x; })
-                        .attr("cy", function(d:any) { return d.y; });
-                    cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
+                }else{
+                    d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
                 }
-                function dragstarted(d:any) {
-                    if (!d.active) simulation.alphaTarget(0.3).restart();
-                    d.subject.fx = d.x;
-                    d.subject.fy = d.y;
-                    d.sourceEvent.stopPropagation();
-                }
-                
-                function dragged(d:any) {
-                    d.subject.fx = d.x;
-                    d.subject.fy = d.y;
-                    d.sourceEvent.stopPropagation();
-                }
-                
-                function dragended(d:any) {
-                    if (!d.active) simulation.alphaTarget(0);
-                    d.subject.fx = null;
-                    d.subject.fy = null;
-                    d.sourceEvent.stopPropagation();
-                }
-    
-                function zoomed(transform: any) {
-                    graphContainer.style('transition', 'none')
-                    graphContainer.attr('transform', `translate(${transform.x},${transform.y}) scale(${transform.k})`
-                )}
-            }else{
-                console.log("connot get graph ref");
+            });
+                    
+            simulation.nodes(data.nodes).on("tick", ticked);      
+            // @ts-ignore    
+            simulation.force("link")?.links(data.edges);
+            function ticked() {
+                link.attr("x1", function(d:any) { return d.source.x; })
+                    .attr("y1", function(d:any) { return d.source.y; })
+                    .attr("x2", function(d:any) { return d.target.x; })
+                    .attr("y2", function(d:any) { return d.target.y; });
+                cir.attr("cx", function(d:any) { return d.x; })
+                    .attr("cy", function(d:any) { return d.y; });
+                cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
             }
-        });
-    },[graphRef,selectNodes])
+            function dragstarted(d:any) {
+                if (!d.active) simulation.alphaTarget(0.3).restart();
+                d.subject.fx = d.x;
+                d.subject.fy = d.y;
+                d.sourceEvent.stopPropagation();
+            }
+            
+            function dragged(d:any) {
+                d.subject.fx = d.x;
+                d.subject.fy = d.y;
+                d.sourceEvent.stopPropagation();
+            }
+            
+            function dragended(d:any) {
+                if (!d.active) simulation.alphaTarget(0);
+                d.subject.fx = null;
+                d.subject.fy = null;
+                d.sourceEvent.stopPropagation();
+            }
+
+            function zoomed(transform: any) {
+                graphContainer.style('transition', 'none')
+                graphContainer.attr('transform', `translate(${transform.x},${transform.y}) scale(${transform.k})`
+            )}
+        }else{
+            console.log("connot get graph ref");
+        }
+    },[selectNodes, graphRef])
 
     return (
         <div className='graph-wrap'>

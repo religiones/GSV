@@ -16,7 +16,6 @@ const NodesDistanceView: React.FC<{}> = () => {
             dispatch(setDeleteNodes({deleteNodes: []}));
             initGraph(combineNodes["combine"]);
         }
-        
     },[combineNodes]);
 
 
