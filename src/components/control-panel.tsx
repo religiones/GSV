@@ -14,8 +14,8 @@ const ControlPanel: React.FC<{}> = () => {
         training_algorithm: 'skip-gram',
         optimize: 'neigative sampling',
         p_parameter: 1,
-        q_parameter: 1,
-        epoch: 3,
+        q_parameter: 0.1,
+        epoch: 8,
         similarity: "KNN"
     });
     const dispatch = useDispatch();
@@ -62,14 +62,14 @@ const ControlPanel: React.FC<{}> = () => {
                 <p className='control-title'>Train Setting</p>
                 <Col span={24}>            
                     <span className='control-title-small'>Train Algorithm</span>
-                    <Select defaultValue={"skip-gram"} options={algorithmOption} size={"middle"}
+                    <Select defaultValue={settingData.training_algorithm} options={algorithmOption} size={"middle"}
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{training_algorithm: v}}
                         });
                     }} ></Select>
                     <span className='control-title-small'>Optimize</span>
-                    <Select defaultValue={"neigative sampling"} options={optimizeOption} size={"middle"} style={{width:150}} 
+                    <Select defaultValue={settingData.optimize} options={optimizeOption} size={"middle"} style={{width:150}} 
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{optimize: v}}
@@ -80,21 +80,21 @@ const ControlPanel: React.FC<{}> = () => {
             <Row style={{marginBottom:"0.5vh"}}>
                 <Col span={24}>
                     <span className='control-title-small'>p parameter</span>
-                    <InputNumber min={0} max={100} defaultValue={1} style={{width:"3.5vw"}} 
+                    <InputNumber min={0} max={100} defaultValue={settingData.p_parameter} style={{width:"3.5vw"}} 
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{p_parameter: v as number}}
                         });
                     }}></InputNumber>
                     <span className='control-title-small'>q parameter</span>
-                    <InputNumber min={0} max={100} defaultValue={1} style={{width:"3.5vw"}}
+                    <InputNumber min={0} max={100} defaultValue={settingData.q_parameter} style={{width:"3.5vw"}}
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{q_parameter: v as number}}
                         });
                     }}></InputNumber>
                     <span className='control-title-small'>epoch</span>
-                    <InputNumber min={1} max={100} defaultValue={3} style={{width:"3.5vw"}}
+                    <InputNumber min={1} max={100} defaultValue={settingData.epoch} style={{width:"3.5vw"}}
                     onChange={(v)=>{
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{epoch: v as number}}
@@ -105,7 +105,7 @@ const ControlPanel: React.FC<{}> = () => {
             <Row style={{marginBottom:"0.5vh"}}>
                 <p className='control-title'>Similarity Setting</p>
                 <Col span={24}>
-                    <Radio.Group defaultValue={"KNN"} onChange={(e)=>{
+                    <Radio.Group defaultValue={settingData.similarity} onChange={(e)=>{
                         const v = e.target.value;
                         setSettingData((pre:SettingData)=>{
                             return {...pre, ...{similarity: v}}

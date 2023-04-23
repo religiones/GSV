@@ -22,8 +22,7 @@ const CommunityList: React.FC<{}> = () => {
 
     const initCommunityList = () => {
         getCommunity().then(res=>{
-            const data: any[] = res.data.data;
-            console.log(data)
+            const data: any[] = res.data;
             data.sort((a: any, b:any)=>{
                 return (b["node_num"]-a["node_num"]);
             });

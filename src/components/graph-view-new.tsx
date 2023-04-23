@@ -4,6 +4,7 @@ import { getGraphByCommunity } from '../api/graph';
 import * as d3 from 'd3';
 import "./style/graph-view.less";
 import { Attrtion } from './@types/communi-list';
+import { Node } from './@types/graph-view';
 import { setSelectNodes } from '../store/features/graph-slice';
 import { Switch } from 'antd';
 
@@ -31,7 +32,6 @@ const GraphViewNew: React.FC<{}> = () => {
                 setGraphData(data);
                 initGraph(data);
             });
-
         }
     },[currentCommunity?.id]);
 
@@ -48,14 +48,25 @@ const GraphViewNew: React.FC<{}> = () => {
             const links: any[] = [...graphData["edges"]];
             const nodes: any[] = [...graphData["nodes"]];
             const nodesId = isCombine["target"]["nodes"];
+
             // compute source & target
             let similarityLinks: any[] = [];
             let similarityNodes: any[] = [];
+            let excludeNodes: any[] = [];
             links.forEach((link:any)=>{
                 const source = link.source.id;
                 const target = link.target.id;
-                if(nodesId.includes(source) || nodesId.includes(target)){
+                if(nodesId.includes(source)){
                     similarityLinks.push(link);
+                    if(excludeNodes.findIndex(item=>item.id == target) == -1){
+                        excludeNodes.push(link.target);
+                    }
+                }
+                if(nodesId.includes(target)){
+                    similarityLinks.push(link);
+                    if(excludeNodes.findIndex(item=>item.id == source) == -1){
+                        excludeNodes.push(link.source);
+                    }
                 }
             });
             nodes.forEach((node: any)=>{
@@ -70,8 +81,14 @@ const GraphViewNew: React.FC<{}> = () => {
             similarityNodes.forEach((node:any)=>{
                 nodes.splice(nodes.indexOf(node), 1);
             });
+            console.log(similarityNodes, similarityLinks, excludeNodes)
             // add virtual node & edge
-            initGraph({nodes: similarityNodes, edges: similarityLinks});
+            // initGraph({nodes: similarityNodes, edges: similarityLinks});
+            let virtualGraph = combineGraph(excludeNodes, isCombine.combineId);
+            let resultGraph = {nodes: [...nodes, ...virtualGraph.nodes], edges: [...links, ...virtualGraph.edges]};
+            initGraph(resultGraph);
+            console.log(resultGraph)
+            setGraphData(resultGraph);
         }
     },[isCombine]);
 
@@ -95,7 +112,7 @@ const GraphViewNew: React.FC<{}> = () => {
                 if(node["donutAttrs"] != undefined){
                     return node["donutAttrs"]
                 }else{
-                    return {    
+                    return {
                         porn: 0,
                         gambling: 0,
                         fraud: 0,
@@ -164,6 +181,13 @@ const GraphViewNew: React.FC<{}> = () => {
                 .join('g')
                 .attr("id", (d: any)=>d.id)
                 .attr("class", "nodes")
+                .on("contextmenu", function(e){
+                    e.preventDefault();
+                })
+                .on("mouseup", function(e){
+                    if (!e) e=window.event;
+                    // 右键事件
+                })
                 .on("click",function(e){
                     const data = e.target.__data__;
                     const nodeId = data["id"];
@@ -174,7 +198,6 @@ const GraphViewNew: React.FC<{}> = () => {
                         dispatch(setSelectNodes({selectNodes: [...selectNodesRef.current, nodeId]}));
                     }
                     d3.select(this).attr("stroke","red");
-                    
                 })
                 .call(
                 //@ts-ignore
@@ -182,23 +205,27 @@ const GraphViewNew: React.FC<{}> = () => {
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended));
-            
             // 绘制节点
             const cir = node.append('circle')
                     .attr("r", (d: any)=>{
                         if(d["donutAttrs"]!=undefined){
                             return radiusScale(d3.sum(Object.values(d["donutAttrs"])));
-                        }else{
+                        }else if(d["nodeType"] == "VirtualNode"){
+                            return minNodeSize+10;
+                        }else
+                        {
                             return minNodeSize;
                         }
-                        
                     })
                     .attr("fill",(d:any)=>{
                         if(d.nodeType == "Domain"){
                             return "#68bb8c"
                         }else if(d.nodeType == "Cert"){
                             return "#3F3B6C"
-                        }else{
+                        }else if(d.nodeType == "VirtualNode"){
+                            return "#D2C179"
+                        }
+                        else{
                             return "#CF0A0A"
                         }
                     });
@@ -207,7 +234,6 @@ const GraphViewNew: React.FC<{}> = () => {
                 .outerRadius(maxNodeSize*1.4)
             const angle = d3.pie();
             const cycle = node.append("g").attr("class","cycle");
-            
             d3.selectAll(".cycle").each(function(d:any){
                 if(d["donutAttrs"] != undefined){
                     if(d3.sum(Object.values(d["donutAttrs"])) != 0){
@@ -221,7 +247,17 @@ const GraphViewNew: React.FC<{}> = () => {
                     d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
                 }
             });
-                    
+            // 绘制标签
+            const lable = node.append("text")
+                .text((d: any)=>{
+                    if(d.nodeType == "VirtualNode"){
+                        return d.id;
+                    }else{
+                        return
+                    }
+                })
+                .attr('text-anchor',"middle")
+                .attr('dy','.35em')
             simulation.nodes(data.nodes).on("tick", ticked);      
             // @ts-ignore    
             simulation.force("link")?.links(data.edges);
@@ -233,6 +269,8 @@ const GraphViewNew: React.FC<{}> = () => {
                 cir.attr("cx", function(d:any) { return d.x; })
                     .attr("cy", function(d:any) { return d.y; });
                 cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
+                lable.attr("x",function(d:any){return d.x})
+                    .attr("y",function(d:any){return d.y});
             }
             function dragstarted(d:any) {
                 if (!d.active) simulation.alphaTarget(0.3).restart();
@@ -262,6 +300,27 @@ const GraphViewNew: React.FC<{}> = () => {
             console.log("connot get graph ref");
         }
     },[selectNodes, graphRef])
+
+    const combineGraph = (excludeNodesData: any, combineId: string) => {
+        let excludeNodes = excludeNodesData;
+        // create virtual Node
+        const virtualNode: any = {
+            id: combineId,
+            nodeType: "VirtualNode"
+        }
+        // create virtual Node & Edge
+        let virtualNodes = [];
+        let virtualEdges = [];
+        for(let node of excludeNodes){
+            let virtualEdge = {
+                source: virtualNode,
+                target: node
+            }
+            virtualEdges.push(virtualEdge);
+            virtualNodes.push(node);
+        }
+        return {nodes: [virtualNode, ...virtualNodes], edges: virtualEdges};
+    }
 
     return (
         <div className='graph-wrap'>
