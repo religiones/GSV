@@ -3,7 +3,6 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCombineNodes, setCombineNodesList, setIsCombine } from '../../store/features/graph-slice';
 import { CombineNodes } from '../@types/graph-view';
-
 type SubGraphItem = {
     combineNodes: CombineNodes,
 }
@@ -13,9 +12,8 @@ const SubGraphItem: React.FC<SubGraphItem> = (props) => {
     const { combineNodes } = props;
     const {name, community, nodeNum} = combineNodes;
     const dispatch = useDispatch();
-
     const onNodesClick = () => {
-        dispatch(setIsCombine({isCombine:{flag:true,target:combineNodes["combine"]}}));
+        dispatch(setIsCombine({isCombine:{flag:true,target:combineNodes["combine"],combineId: name, combineSize: nodeNum}}));
     }
     const onDeleteClick = () => {
         let nodes: string[] = [...combineNodes["combine"]["nodes"]];

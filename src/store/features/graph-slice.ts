@@ -6,7 +6,7 @@ export interface graphState {
     graphDistance: number[],
     focusGraphs: number[],
     embeddingGraph: number|undefined,
-    subGraph:subGraphType|undefined,
+    subGraph:any,
     subGraphList: subGraphType[],
     selectNodes: string[],
     combineNodes: CombineNodes|undefined,

@@ -23,7 +23,6 @@ const CommunityList: React.FC<{}> = () => {
     const initCommunityList = () => {
         getCommunity().then(res=>{
             const data: any[] = res.data;
-            console.log(data)
             data.sort((a: any, b:any)=>{
                 return (b["node_num"]-a["node_num"]);
             });
@@ -32,15 +31,15 @@ const CommunityList: React.FC<{}> = () => {
                 lineUp = LineUpJs.builder(data).column(buildStringColumn('id').width(listStringWidth))
                 .column(buildNumberColumn('node_num').width(listNumWidth))
                 .column(buildNumberColumn('wrong_num').width(listNumWidth))
-                .column(buildNumberColumn('porn').width(listCategoricalWidth))
-                .column(buildNumberColumn('gambling').width(listCategoricalWidth))
-                .column(buildNumberColumn('fraud').width(listCategoricalWidth))
-                .column(buildNumberColumn('drug').width(listCategoricalWidth))
-                .column(buildNumberColumn('gun').width(listCategoricalWidth))
-                .column(buildNumberColumn('hacker').width(listCategoricalWidth))
-                .column(buildNumberColumn('trading').width(listCategoricalWidth))
-                .column(buildNumberColumn('pay').width(listCategoricalWidth))
-                .column(buildNumberColumn('other').width(listCategoricalWidth))
+                .column(buildNumberColumn('porn').width(listCategoricalWidth).colorMapping('#f49c84'))
+                .column(buildNumberColumn('gambling').width(listCategoricalWidth).colorMapping('#099EDA'))
+                .column(buildNumberColumn('fraud').width(listCategoricalWidth).colorMapping('#FEE301'))
+                .column(buildNumberColumn('drug').width(listCategoricalWidth).colorMapping('#ABB7BD'))
+                .column(buildNumberColumn('gun').width(listCategoricalWidth).colorMapping('#F4801F'))
+                .column(buildNumberColumn('hacker').width(listCategoricalWidth).colorMapping('#D6C223'))
+                .column(buildNumberColumn('trading').width(listCategoricalWidth).colorMapping('#D75D73'))
+                .column(buildNumberColumn('pay').width(listCategoricalWidth).colorMapping('#E0592B'))
+                .column(buildNumberColumn('other').width(listCategoricalWidth).colorMapping('#58B7B3'))
                 .deriveColors()
                 .buildTaggle(container.current as HTMLElement);
 
