@@ -3,7 +3,6 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCombineNodes, setCombineNodesList, setIsCombine } from '../../store/features/graph-slice';
 import { CombineNodes } from '../@types/graph-view';
-
 type SubGraphItem = {
     combineNodes: CombineNodes,
 }

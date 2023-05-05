@@ -7,13 +7,14 @@ export interface Node{
 }
 
 export interface Edge{
-    source: string,
-    target: string
+    source: any,
+    target: any
 }
 
 export type graphData = {
     nodes: Node[],
-    edges: EDge[]
+    edges: EDge[],
+    index?: Number
 }
 
 export type subGraphType = {

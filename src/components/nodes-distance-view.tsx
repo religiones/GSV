@@ -3,24 +3,38 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Combine} from './@types/graph-view';
 import * as d3 from 'd3';
 import { setDeleteNodes } from '../store/features/graph-slice';
+import _ from 'lodash';
 
 const NodesDistanceView: React.FC<{}> = () => {
-    const { combineNodes } = useSelector((store:any) => store.graph);
+    const { combineNodes, subGraph } = useSelector((store:any) => store.graph);
     const dispatch = useDispatch();
     const graphRef:LegacyRef<SVGSVGElement> = createRef();
-    const margin = 5;
+    const margin ={
+        left: 80,
+        right: 10,
+        top: 10,
+        bottom: 10
+    };
     const barColor = "#68bb8c";
-
+    const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
+    '#D75D73','#E0592B', '#58B7B3']
+    const featuresWidth = 80;
     useEffect(()=>{
         if(combineNodes != undefined){
             dispatch(setDeleteNodes({deleteNodes: []}));
-            initGraph(combineNodes["combine"]);
+            let features = [];
+            for(let nodeId of combineNodes["combine"]["nodes"]){
+                for(let node of subGraph["data"]["nodes"]){
+                    if(node["id"] == nodeId){
+                        features.push(node)
+                    }
+                }
+            }
+            initGraph(combineNodes["combine"], features);
         }
     },[combineNodes]);
 
-
-
-    const initGraph = useCallback((combine:Combine) => {
+    const initGraph = useCallback((combine:Combine, features: any[]) => {
         if(graphRef.current != undefined){
             const svg = d3.select(graphRef.current);
             svg.selectChildren().remove();
@@ -37,11 +51,11 @@ const NodesDistanceView: React.FC<{}> = () => {
                 data.push({label:nodes[i],value:distance[i]});
             }
             console.log(min,max,width);
-            const xScale = d3.scaleLinear().domain([min, max]).range([margin,width-margin]);
-            const yScale = d3.scaleBand().domain(nodes).range([height-margin, margin]).padding(0.2);
-            const xAxis = (g:any) => g.attr("transform",`translate(0,${height-margin})`)
+            const xScale = d3.scaleLinear().domain([min, max]).range([margin["left"],width-margin["right"]]);
+            const yScale = d3.scaleBand().domain(nodes).range([height-margin["bottom"], margin["top"]]).padding(0.2);
+            const xAxis = (g:any) => g.attr("transform",`translate(0,${height-margin["top"]})`)
                 .call(d3.axisBottom(xScale).ticks(width/100));
-            const yAxis = (g: any) => g.attr("transform",`translate(${margin}, 0)`)
+            const yAxis = (g: any) => g.attr("transform",`translate(${margin["top"]}, 0)`)
                 .call(d3.axisLeft(yScale).tickSizeOuter(0));
             svg.selectAll("rect")
                 .data(data)
@@ -59,6 +73,28 @@ const NodesDistanceView: React.FC<{}> = () => {
                     d3.select(this).attr("class","selected");
                     console.log(data);
                 });
+            const featuresBar = svg.selectAll("g")
+                .data(features)
+                .join("g");
+            featuresBar.each(function(d){
+                let attrs = _.values(d["donutAttrs"])
+                let rectWidth = Math.floor(featuresWidth/attrs.length);
+                d3.select(this)
+                .selectAll("rect")
+                .data(attrs)
+                .join("rect")
+                .attr("x", (d:any,i:number)=>i*rectWidth)
+                .attr("y", yScale(d["id"]) as number)
+                .attr("width", rectWidth+1)
+                .attr("height", yScale.bandwidth)
+                .attr("fill", (d:any,i:number)=>{
+                    if(d==0){
+                        return "#0002";
+                    }else{
+                        return colorArray[i];
+                    }
+                })
+            })
             // brush
             svg.append("g")
                 .attr("class", "brush")

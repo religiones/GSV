@@ -4,9 +4,9 @@ import { getGraphByCommunity } from '../api/graph';
 import * as d3 from 'd3';
 import "./style/graph-view.less";
 import { Attrtion } from './@types/communi-list';
-import { Node } from './@types/graph-view';
-import { setSelectNodes } from '../store/features/graph-slice';
+import { setSelectNodes, setSubGraph } from '../store/features/graph-slice';
 import { Switch } from 'antd';
+import { cloneDeep, uniq } from 'lodash';
 
 const GraphViewNew: React.FC<{}> = () => {
     const colorArray = ['#f49c84','#099EDA','#FEE301','#ABB7BD','#F4801F','#D6C223',
@@ -30,6 +30,7 @@ const GraphViewNew: React.FC<{}> = () => {
             getGraphByCommunity({community: currentCommunity.id}).then(res=>{
                 const data = res.data;
                 setGraphData(data);
+                dispatch(setSubGraph({subGraph:{name:currentCommunity?.id,data:cloneDeep(data)}}));
                 initGraph(data);
             });
         }
@@ -84,11 +85,11 @@ const GraphViewNew: React.FC<{}> = () => {
             console.log(similarityNodes, similarityLinks, excludeNodes)
             // add virtual node & edge
             // initGraph({nodes: similarityNodes, edges: similarityLinks});
-            let virtualGraph = combineGraph(excludeNodes, isCombine.combineId);
-            let resultGraph = {nodes: [...nodes, ...virtualGraph.nodes], edges: [...links, ...virtualGraph.edges]};
+            // let virtualGraph = combineGraph(excludeNodes, isCombine.combineId);
+            let resultGraph = {nodes: uniq([...similarityNodes, ...excludeNodes]), edges: uniq([...similarityLinks])};
             initGraph(resultGraph);
-            console.log(resultGraph)
             setGraphData(resultGraph);
+            dispatch(setSubGraph({subGraph:{name:currentCommunity?.id,data:cloneDeep(resultGraph)}}));
         }
     },[isCombine]);
 
@@ -145,6 +146,27 @@ const GraphViewNew: React.FC<{}> = () => {
             const height = container?.clientHeight as number;
             // svg.attr("viewBox",`${-width/2} ${-height*0.5} ${width} ${height}`);
             // define arrow
+            // 创建图例
+            const legendGroup = svg.append("g")
+                .attr("class","legend")
+                .attr("transform",`translate(${width-30},50)`);
+            legendGroup.selectAll("rect")
+                .data(band)
+                .join("rect")
+                .attr("width",20)
+                .attr("height",10)
+                .attr("x",-10)
+                .attr("y",(d:any,i:number)=>`${i*22}`)
+                .attr("fill",(d:any, i: number)=>{
+                    return colorArray[i];
+                })
+            legendGroup.selectAll("text")
+                .data(band)
+                .join("text")
+                .text((d)=>d)
+                .attr("x", -20)
+                .attr("y", (d:any, i:number)=>`${i*22+10}`)
+                .attr("text-anchor","end")
             svg.append('defs').append('marker')
             .attr("id",'arrowhead')
             .attr('viewBox','-0 -5 10 10')
@@ -161,7 +183,8 @@ const GraphViewNew: React.FC<{}> = () => {
 
             const simulation = d3.forceSimulation()
                 .force("link",d3.forceLink().id(function(d:any){return d.id;}))
-                .force("charge",d3.forceManyBody())
+                .force("charge",d3.forceManyBody().strength(()=>{return -80})
+                .distanceMax(350))
                 .force("center",d3.forceCenter(width/2, height/2));
             const link = graphContainer.append("g")
                 .attr("class","links")
@@ -241,7 +264,8 @@ const GraphViewNew: React.FC<{}> = () => {
                         .join("path")
                         .attr("class","cycle-path")
                         .attr("d", (d: any)=>arc(d))
-                        .attr("fill",(d: any, index: number)=>{return colorArray[index-1];});
+                        .attr("fill",(d: any, index: number)=>{
+                            return colorArray[index];});
                     }
                 }else{
                     d3.select(this).datum([0,0,0,0,0,0,0,0,0]);
@@ -268,7 +292,13 @@ const GraphViewNew: React.FC<{}> = () => {
                     .attr("y2", function(d:any) { return d.target.y; });
                 cir.attr("cx", function(d:any) { return d.x; })
                     .attr("cy", function(d:any) { return d.y; });
-                cycle.attr("transform",function(d:any){return `translate(${d.x}, ${d.y})`});
+                cycle.attr("transform",function(d:any){
+                    if(d.x && d.y){
+                        return `translate(${d.x}, ${d.y})`;
+                    }else{
+                        return "translate(0,0)";
+                    }
+                });
                 lable.attr("x",function(d:any){return d.x})
                     .attr("y",function(d:any){return d.y});
             }
@@ -327,14 +357,14 @@ const GraphViewNew: React.FC<{}> = () => {
             <span id='graph-title'>{`community: ${currentCommunity===null?'null':currentCommunity.id}`}</span>
             <div id="button-group">
                 <label className='label'>multiple select</label>
-                <Switch style={{marginLeft:"4%"}} onChange={()=>{
+                <Switch style={{marginLeft:"1%"}} onChange={()=>{
                     d3.selectAll(".nodes").attr("stroke","grey");
                     dispatch(setSelectNodes({selectNodes: []}));
                     setIsMultiple((pre:boolean)=>!pre);
                 }}/>
             </div>
             <svg ref={graphRef} id='graph-container' style={{width:'100%', height:'100%'}}></svg>
-       </div>);
+    </div>);
 };
 
 
