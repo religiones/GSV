@@ -19,8 +19,6 @@ const NodesDistanceView: React.FC<{}> = () => {
         
     },[combineNodes]);
 
-
-
     const initGraph = useCallback((combine:Combine) => {
         if(graphRef.current != undefined){
             const svg = d3.select(graphRef.current);
