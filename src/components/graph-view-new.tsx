@@ -107,7 +107,7 @@ const GraphViewNew: React.FC<{}> = () => {
         }
     },[combineNodes])
 
-    const initGraph = useCallback((data: any) => {
+    const initGraph = (data: any) => {
         if(graphRef.current != null){
             const attrList: Attrtion[] = data["nodes"].map((node:any)=>{
                 if(node["donutAttrs"] != undefined){
@@ -184,7 +184,7 @@ const GraphViewNew: React.FC<{}> = () => {
             const simulation = d3.forceSimulation()
                 .force("link",d3.forceLink().id(function(d:any){return d.id;}))
                 .force("charge",d3.forceManyBody().strength(()=>{return -80})
-                .distanceMax(350))
+                .distanceMax(550))
                 .force("center",d3.forceCenter(width/2, height/2));
             const link = graphContainer.append("g")
                 .attr("class","links")
@@ -329,7 +329,7 @@ const GraphViewNew: React.FC<{}> = () => {
         }else{
             console.log("connot get graph ref");
         }
-    },[selectNodes, graphRef])
+    }
 
     const combineGraph = (excludeNodesData: any, combineId: string) => {
         let excludeNodes = excludeNodesData;
